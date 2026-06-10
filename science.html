@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Threshold Reef: Model Notes &amp; Scientific Background</title>
+  <meta name="description" content="Model notes and scientific background for Threshold Reef: what is modelled, what is simplified, and why those simplifications are right for a public audience.">
+  <style>
+    /* Design tokens shared with reef-sim.html so the simulation and this page read as one family. */
+    :root {
+      --water-deep: #091524;
+      --water-mid: #0c3560;
+      --accent: #4ecdc4;
+      --text-primary: #f0f0f0;
+      --text-secondary: rgba(255, 255, 255, 0.66);
+      --text-tertiary: rgba(255, 255, 255, 0.45);
+      --panel-line: rgba(255, 255, 255, 0.08);
+      --mono: ui-monospace, SFMono-Regular, 'Cascadia Code', Consolas, monospace;
+      --measure: 800px;   /* reading column: a touch wider than the in-sim panels, less scrolling */
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100%;
+      /* Soft teal glow at the very top over deep water, the same mood as the intro. */
+      background:
+        radial-gradient(120% 50% at 50% 0%, rgba(78,205,196,0.09), rgba(78,205,196,0) 52%),
+        var(--water-deep);
+      color: var(--text-primary);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Slim top link back to the simulation; institutes often land here from a portfolio link. */
+    .topbar { max-width: var(--measure); margin: 0 auto; padding: 18px 28px 0; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 0.82rem; color: var(--text-secondary); text-decoration: none;
+      padding: 6px 14px; border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .back-link:hover { color: var(--accent); border-color: rgba(78,205,196,0.4); }
+
+    .page { max-width: var(--measure); margin: 0 auto; padding: 26px 28px 64px; }
+
+    /* ===== Hero ===== */
+    .eyebrow {
+      font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--text-tertiary); text-align: center; margin-bottom: 16px;
+    }
+    .title {
+      font-size: 2.9rem; font-weight: 300; letter-spacing: 0.14em;
+      color: var(--accent); text-align: center; line-height: 1.1;
+      text-shadow: 0 2px 24px rgba(78,205,196,0.32);
+    }
+    .subtitle {
+      font-size: 1.12rem; font-style: italic; color: rgba(255,255,255,0.78);
+      text-align: center; margin-top: 10px; letter-spacing: 0.2px;
+    }
+    .byline { font-size: 0.84rem; color: var(--text-secondary); text-align: center; margin-top: 14px; }
+    .rule {
+      height: 2px; width: 54px; margin: 22px auto 32px;
+      background: linear-gradient(90deg, rgba(78,205,196,0), var(--accent), rgba(78,205,196,0));
+    }
+
+    /* ===== Prose ===== */
+    .lead { font-size: 1.02rem; line-height: 1.75; color: rgba(255,255,255,0.84); }
+    .lead + .lead { margin-top: 16px; }
+    p.body { font-size: 0.95rem; line-height: 1.74; color: var(--text-secondary); margin-top: 16px; }
+    p.body strong, .lead strong { color: var(--text-primary); font-weight: 600; }
+    p.body em, .lead em { color: rgba(255,255,255,0.82); font-style: italic; }
+    p.body code, .lead code, li code { font-family: var(--mono); color: var(--accent); font-size: 0.86em; }
+
+    /* ===== Quick facts (glass tiles, echo of the intro variable tiles) ===== */
+    .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 32px 0 8px; }
+    .fact {
+      padding: 16px 18px; border-radius: 14px;
+      background: linear-gradient(180deg, #14273e 0%, #0d1c2e 100%);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 6px 18px rgba(0,0,0,0.30);
+    }
+    .fact-label {
+      font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); font-weight: 600; margin-bottom: 7px;
+    }
+    .fact p { font-size: 0.86rem; color: var(--text-secondary); line-height: 1.55; }
+
+    /* ===== Section heading with the round teal icon chip (same chip as the sim) ===== */
+    .section { margin-top: 46px; }
+    .sec-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+    .sec-chip {
+      flex-shrink: 0; width: 46px; height: 46px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 1.4rem; line-height: 1;
+      background: radial-gradient(circle at 38% 32%, rgba(78,205,196,0.22), rgba(78,205,196,0.04) 70%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 3px 8px rgba(0,0,0,0.3);
+    }
+    .sec-head h2 {
+      font-size: 1.5rem; font-weight: 400; color: var(--accent);
+      text-shadow: 0 2px 14px rgba(78,205,196,0.22); letter-spacing: 0.3px;
+    }
+    /* Plainer sub-heading for sub-sections, so the page stays calm rather than busy. */
+    h3.sub { font-size: 1.06rem; font-weight: 600; color: var(--text-primary);
+      margin: 28px 0 4px; letter-spacing: 0.2px; }
+
+    /* ===== Definition list (the design-approach points, the C / M / T groups) ===== */
+    .deflist { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+    .deflist .item { font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary); }
+    .deflist .item strong { color: var(--text-primary); font-weight: 600; }
+    .symbols { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .symbol { display: flex; gap: 12px; align-items: baseline; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; }
+    .symbol .glyph {
+      flex-shrink: 0; font-family: var(--mono); font-weight: 600; color: var(--accent);
+      font-size: 1rem; min-width: 22px;
+    }
+    .symbol code { font-family: var(--mono); color: var(--accent); font-size: 0.86em; }
+
+    /* ===== Equation / code block ===== */
+    .codecard {
+      margin: 20px 0; padding: 18px 20px; border-radius: 12px;
+      background: rgba(0,0,0,0.30);
+      border: 1px solid rgba(255,255,255,0.09);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+      font-family: var(--mono); font-size: 0.92rem; line-height: 1.95;
+      color: #cfeee9; overflow-x: auto; white-space: pre;
+    }
+
+    /* ===== Inline lever chips (temperature / fishing / pollution) ===== */
+    .levers { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .lever { display: flex; align-items: flex-start; gap: 12px; }
+    .lever-chip {
+      flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 1.05rem; line-height: 1;
+      background: radial-gradient(circle at 38% 32%, rgba(78,205,196,0.20), rgba(78,205,196,0.04) 70%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 2px 6px rgba(0,0,0,0.28);
+    }
+    .lever p { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; }
+    .lever p strong { color: var(--text-primary); font-weight: 600; }
+    .lever code { font-family: var(--mono); color: var(--accent); font-size: 0.85rem; }
+
+    /* ===== Honest-note callout (teal, like the in-sim try-this box) ===== */
+    .note {
+      margin: 24px 0; padding: 16px 20px; border-radius: 12px;
+      background: rgba(78,205,196,0.07);
+      border: 1px solid rgba(78,205,196,0.18);
+    }
+    .note h4 { font-size: 0.82rem; font-weight: 600; color: var(--accent);
+      letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+    .note p { font-size: 0.89rem; color: var(--text-secondary); line-height: 1.66; }
+    .note p + p { margin-top: 10px; }
+    .note p strong { color: var(--text-primary); font-weight: 600; }
+    .note em { color: rgba(255,255,255,0.82); }
+    .note code { font-family: var(--mono); color: var(--accent); font-size: 0.85em; }
+
+    /* ===== Simplifications: two-column list to keep the page from running long ===== */
+    .simple-list { margin-top: 16px; columns: 2; column-gap: 28px; }
+    .simple-list .row { break-inside: avoid; margin-bottom: 16px; font-size: 0.9rem;
+      line-height: 1.62; color: var(--text-secondary); }
+    .simple-list .row strong { color: var(--text-primary); font-weight: 600; }
+    .simple-list .row::before {
+      content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); margin-right: 9px; vertical-align: middle; opacity: 0.85;
+    }
+
+    /* ===== References: two columns, groups kept intact ===== */
+    .refs { margin-top: 18px; columns: 2; column-gap: 32px; }
+    .ref-group { break-inside: avoid; margin-bottom: 20px; }
+    .ref-cat { font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase;
+      color: var(--accent); font-weight: 600; margin-bottom: 9px; }
+    .ref { display: flex; gap: 9px; font-size: 0.8rem; line-height: 1.5;
+      color: var(--text-secondary); margin-bottom: 9px; }
+    .ref .num { color: var(--accent); font-variant-numeric: tabular-nums; min-width: 18px; }
+    .ref em { color: rgba(255,255,255,0.78); font-style: italic; }
+
+    /* ===== Footer routing ===== */
+    .foot {
+      margin-top: 54px; padding-top: 30px; border-top: 1px solid var(--panel-line);
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px;
+    }
+    .btn-primary {
+      background: var(--accent); color: var(--water-deep); text-decoration: none;
+      padding: 12px 28px; font-size: 0.92rem; font-weight: 600; border-radius: 26px;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover { transform: scale(1.03); box-shadow: 0 4px 20px rgba(78,205,196,0.32); }
+    .btn-ghost {
+      color: var(--text-secondary); text-decoration: none; font-size: 0.88rem;
+      padding: 11px 20px; border-radius: 26px; border: 1px solid rgba(255,255,255,0.14);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-ghost:hover { color: var(--accent); border-color: rgba(78,205,196,0.4); }
+
+    @media (max-width: 640px) {
+      .title { font-size: 2.1rem; }
+      .facts { grid-template-columns: 1fr; }
+      .simple-list, .refs { columns: 1; }
+      .page { padding: 22px 20px 56px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="back-link" href="index.html">← Back to the simulation</a>
+  </div>
+
+  <main class="page">
+
+    <!-- ===== HERO ===== -->
+    <p class="eyebrow">Model notes · Scientific background</p>
+    <h1 class="title">Threshold Reef</h1>
+    <p class="subtitle">A reef you can push past its tipping point</p>
+    <p class="byline">Tobias Schneider, PhD · Scientific Learning Experience Designer</p>
+    <div class="rule"></div>
+
+    <p class="lead">A coral reef is one of the fastest changing ecosystems on Earth, and one of the hardest to explain without a wall of jargon. Threshold Reef is an attempt to let a curious person <em>feel</em> one of the most important and least intuitive ideas in reef resilience: that a reef can have more than one stable state, and that the way back is not the way in. You move three levers, watch a living reef respond in accelerated time, push it too far, and discover that easing off does not simply undo the damage.</p>
+    <p class="lead">This page is the part the simulation deliberately keeps off the screen. It is for reef scientists, instructional designers, and anyone who wants to check what is under the hood: what is modelled, what is simplified, why those simplifications serve the learning goal, and where the limits are. Being open about what is simplified is itself a piece of scientific integrity, and it is the part most science communication quietly skips.</p>
+
+    <!-- ===== QUICK FACTS ===== -->
+    <div class="facts">
+      <div class="fact">
+        <div class="fact-label">What it is</div>
+        <p>A standalone, browser-based simulation of a coral reef under three pressures, built as a piece of science communication ("science for the living room"). Not a game with a score; an experience with a lesson.</p>
+      </div>
+      <div class="fact">
+        <div class="fact-label">Who it is for</div>
+        <p>In the simulation itself: a curious layperson, from interested adults to school and early-university students. Around it, on pages like this one: scientists and institutes who want to see that the science underneath is solid.</p>
+      </div>
+      <div class="fact">
+        <div class="fact-label">Format and tooling</div>
+        <p>A single standalone HTML file. Vanilla HTML, CSS and JavaScript, no build step, no frameworks, no external libraries. The reef is drawn procedurally as SVG and recoloured live, so bleaching is the coral itself losing its colour, not a swapped image.</p>
+      </div>
+      <div class="fact">
+        <div class="fact-label">Status</div>
+        <p>Built and playable. The model engine is complete and its bistability and hysteresis are verified numerically (see below).</p>
+      </div>
+    </div>
+
+    <!-- ===== THE IDEA ===== -->
+    <section class="section">
+      <div class="sec-head">
+        <div class="sec-chip">💡</div>
+        <h2>The idea</h2>
+      </div>
+      <p class="body">The brand claim of this piece is simple: it is a <em>real</em> dynamical simulation, not a reactive slideshow. That distinction is the whole point. A reactive piece reads the sliders and paints a matching picture, so every change is instantly reversible and nothing can ever truly be lost. That is a lookup table, not a simulation. Threshold Reef instead carries genuine state that integrates over time, and that state has a tipping point. Once the reef falls into the algae-dominated basin, turning a stressor back down does not bring it back. That irreversibility is not a bug or a dramatic flourish; it is the lesson, and it emerges from the state-based dynamics rather than from a scripted visual response.</p>
+      <p class="body">The emotional high point is therefore not the collapse. It is the moment after the collapse, when the player eases the pressure back to where the reef was thriving a minute ago and the reef does not return. That is when "tipping point" stops being a phrase and becomes something the person has felt.</p>
+    </section>
+
+    <!-- ===== WHAT I BUILT ===== -->
+    <section class="section">
+      <div class="sec-head">
+        <div class="sec-chip">🛠️</div>
+        <h2>What I built</h2>
+      </div>
+      <p class="body">The learner has three levers, each a familiar pressure on real reefs: <strong>temperature</strong> (marine heat and bleaching), <strong>fishing</strong> (loss of the herbivorous fish that graze algae), and <strong>pollution</strong> (nutrient runoff that fertilises algae). They act on one reef in compressed time. The intro frames a run loosely as managing the reef "for one decade" to set the stakes, but there is no countdown and no endpoint; the run is open-ended, so a player can push the reef over and coax it back as often as they like, in any order.</p>
+      <p class="body">The reef is alive on screen: coral colonies of several growth forms sway, fish school and thin out as grazers are lost, the water turns murky as nutrients rise, and coral pales and bleaches as the water warms. The reef also speaks. A status badge moves through Healthy, Stressed, Bleaching and Critical, and short narration lines name what is happening and why, for instance that protected grazers are keeping algae in check while the coral bleaches, or that the reef has crossed a point from which it will not recover on its own. So this is not a silent simulation the learner must decode unaided; the system tells its own story in plain language as it unfolds.</p>
+      <p class="body">The intended emotional arc, though nothing forces it, runs like this: the learner moves the sliders and the reef responds; they push a pressure too far; the reef tips into algal dominance; they try to undo it by easing the pressure back; it does not bounce back easily; and an optional "The Science" panel explains why. In practice people explore freely and may tip and recover the reef many times before they ever look further. The panel is always one click away rather than unlocked by a particular state, so explanation is there whenever the person reaches for it, ideally after they have felt the tipping point rather than before.</p>
+    </section>
+
+    <!-- ===== THE DESIGN APPROACH ===== -->
+    <section class="section">
+      <div class="sec-head">
+        <div class="sec-chip">🎨</div>
+        <h2>The design approach</h2>
+      </div>
+      <div class="deflist">
+        <div class="item"><strong>Experience before explanation.</strong> The simulation teaches by consequence, not by instruction. There is no "correct" or "incorrect"; there is a reef that thrives or collapses, and a quiet narration that names what is happening and why.</div>
+        <div class="item"><strong>Built around agency.</strong> The piece is deliberately framed so the person feels able to act rather than merely informed of a disaster. Local protection visibly matters: in this implementation grazing is the dominant recovery lever, reflecting the source model's focus on herbivory and algal feedbacks; the reef can recover within the simulation, and Reset is always available. The aim is for the crisis to read as serious and clear without being dramatised.</div>
+        <div class="item"><strong>Rigour that is honest about its limits.</strong> Where the model simplifies, this page says so, in plain terms, below.</div>
+      </div>
+    </section>
+
+    <!-- ===== THE SCIENCE BEHIND IT ===== -->
+    <section class="section">
+      <div class="sec-head">
+        <div class="sec-chip">🔬</div>
+        <h2>The science behind it</h2>
+      </div>
+      <p class="body">The engine is based on the analytical core of the coral–macroalgae–turf model of Mumby, Hastings &amp; Edwards (2007), a foundational result on the resilience of Caribbean reefs. That paper actually contains two models: a spatially explicit, demographically detailed simulation, and a reduced analytical model of three competing space-occupiers. This simulation uses the reduced analytical model. Three groups compete for space on the reef floor, and their cover fractions sum to one:</p>
+
+      <div class="symbols">
+        <div class="symbol"><span class="glyph">C</span><span>coral cover</span></div>
+        <div class="symbol"><span class="glyph">M</span><span>macroalgal cover</span></div>
+        <div class="symbol"><span class="glyph">T</span><span>short, cropped algal turf: the grazed space that coral and macroalgae compete over, taken as the remainder, <code>T = 1 − C − M</code>. In the original this is turf kept short by grazers, not bare rock, so calling it simply "open substrate" would be a slight misstatement.</span></div>
+      </div>
+
+      <p class="body">Two coupled ordinary differential equations are integrated forward in time with a fixed Euler time step on each animation frame, a fixed model-time step per frame rather than one scaled to wall-clock time:</p>
+
+      <div class="codecard">dM/dt = a·M·C − g·M/(M + T) + γ·M·T
+dC/dt = r·T·C − d·C − a·M·C</div>
+
+      <p class="body">with <code>a</code> the rate at which macroalgae overgrow coral, <code>g</code> the grazing rate of herbivorous fish, <code>γ</code> the spread of macroalgae over turf (written <code>c</code> in the original), <code>r</code> coral recruitment and growth onto turf, and <code>d</code> coral mortality. The base parameters follow the source model (<code>a = 0.10</code>, <code>γ = 0.80</code>, <code>r = 1.0</code>, <code>d = 0.24</code>).</p>
+
+      <p class="body">Two honest notes for a reader who knows this model. First, <strong>temperature and nutrients are not state or control variables in the original analytical model.</strong> The three levers here are deliberate didactic extensions of it: fishing changes grazing <code>g</code>; nutrient pollution raises macroalgal growth and spread (<code>a</code> and <code>γ</code>); temperature raises coral mortality <code>d</code> and adds a heat-stress term above a bleaching threshold. Second, <strong>Mumby et al. treat bleaching as an episode of acute coral mortality and disturbance</strong>, not as a separate temperature-driven term in the equations; the explicit heat term here is again a teaching device, not a literal feature of the source model.</p>
+
+      <p class="body">The three levers do not set the reef's state directly; they reshape the parameters, and the state then evolves on its own:</p>
+
+      <div class="levers">
+        <div class="lever">
+          <div class="lever-chip">🌡️</div>
+          <p><strong>Temperature</strong> raises baseline coral mortality <code>d</code>, and above a bleaching threshold it adds a heat-stress mortality term that re-arms while the water stays hot, so sustained heat keeps damaging coral rather than acting once. Visually, the coral is recoloured toward white as it bleaches.</p>
+        </div>
+        <div class="lever">
+          <div class="lever-chip">🎣</div>
+          <p><strong>Fishing</strong> lowers grazing: <code>g = (1 − fishing) · 0.9 + 0.02</code>. More fishing means fewer herbivores, so less algae is eaten.</p>
+        </div>
+        <div class="lever">
+          <div class="lever-chip">🏭</div>
+          <p><strong>Pollution</strong> raises macroalgal growth and spread: <code>a</code> and <code>γ</code> both increase with nutrient load. Runoff acts as fertiliser for algae.</p>
+        </div>
+      </div>
+
+      <p class="body"><strong>Bistability and hysteresis are the whole point, and in this model they are verified numerically.</strong> Sweeping the grazing rate <code>g</code> from both a coral-dominated and an algae-dominated starting condition reveals two different tipping points: coral collapses below a grazing rate of about <code>g ≈ 0.06</code>, but recovery from the algal state requires grazing back up to about <code>g ≈ 0.22</code>. The gap between those thresholds is the hysteresis: the reef does not retrace its path, and recovery demands conditions pushed well past the point at which it fell over. In play, this is why turning temperature or pollution back down is not enough once the reef has tipped; grazing is the lever that governs whether recovery is even possible.</p>
+
+      <div class="note">
+        <h4>A word of scientific honesty</h4>
+        <p>The theory and mechanism of bistability and hysteresis on reefs are well grounded, but the empirical evidence for <em>true</em> hysteresis on real reefs is mixed, scale-dependent and not universal (Bruno et al. 2009; Dudgeon et al. 2010; Mumby, Steneck &amp; Hastings 2013; Schmitt et al. 2019). Some Caribbean settings with weakened herbivory and strong algal feedbacks fit the picture well; elsewhere, many coral-to-algae transitions are better read as reversible phase shifts maintained by ongoing stress than as two states that are both stable under the same conditions. This simulation therefore presents hysteresis as a well-founded mechanism and teaching frame, not as a settled law that holds identically on every reef.</p>
+      </div>
+
+      <h3 class="sub">Numerical implementation and verification</h3>
+      <p class="body">For readers who would rather check the engine than take "verified numerically" on trust, here is what sits under the hood. Each slider position (normalised to a value <code>s</code> between 0 and 1) maps to the model parameters like this:</p>
+
+      <div class="codecard">Fishing      g = (1 − s) · 0.9 + 0.02      grazing,     about 0.02 to 0.92
+Pollution    a = 0.10 + s · 0.20           overgrowth,  0.10 to 0.30
+             γ = 0.80 + s · 0.40           spread,      0.80 to 1.20
+Temperature  d = 0.24 + s · 0.15           mortality,   0.24 to 0.39
+             plus a heat-stress mortality of 0.8 added to d while the
+             temperature stays above the bleaching threshold (s &gt; 0.60),
+             re-arming in short pulses so sustained heat keeps acting</div>
+
+      <p class="body">The live simulation advances the model by a fixed time step on each animation frame, which keeps each frame deterministic. The wall-clock pace can vary slightly with the display's frame rate, but the phase-space behaviour and the verified hysteresis thresholds are the same regardless, and they, not a precise real-time rate, are the intended learning object. After every step the cover fractions are kept valid: <code>C</code> and <code>M</code> are held between 0 and 1, their sum is capped at 1, and <code>M</code> is floored at a small background value (about 0.02) standing for the constant arrival of algal propagules. That floor is a deliberate addition to the source equations: without it <code>M = 0</code> would be an absorbing state, a fully cleared reef could never be re-colonised, and the tipping point would be unreachable from the coral side.</p>
+
+      <p class="body">The two thresholds are found by sweeping the grazing rate <code>g</code> from 0.90 down to 0 in steps of 0.02. At each value the reduced model is integrated to equilibrium from two starting conditions, one coral-dominated (<code>C = 0.70</code>, <code>M = 0.05</code>) and one algae-dominated (<code>C = 0.05</code>, <code>M = 0.70</code>), with the base parameters held fixed. An endpoint counts as coral-dominated when coral cover settles above 0.4. The coral start first collapses to algae at about <code>g ≈ 0.06</code>, the collapse threshold; the algae start first recovers to coral only at about <code>g ≈ 0.22</code>, the recovery threshold. Because recovery needs more grazing than collapse, both states are stable across the gap between those values, and that gap is the hysteresis. The sweep is reproducible from the browser console via <code>verifyBistability()</code>.</p>
+
+      <h3 class="sub">What is simplified, and why on purpose</h3>
+      <p class="body">This is a qualitative teaching model, not a research or forecasting tool. The simplifications are deliberate, and each one buys clarity:</p>
+
+      <div class="simple-list">
+        <div class="row"><strong>One reef, not many reef types.</strong> The original model was parameterised for structurally complex, mid-depth Caribbean forereefs; this piece does not represent other habitats.</div>
+        <div class="row"><strong>Abstract, accelerated time, not calendar time.</strong> There is no fixed time unit, no countdown and no endpoint; the "decade" in the intro is only a framing device. The full Mumby simulation, by contrast, steps in six-month intervals and includes disturbances such as hurricanes, which this core deliberately omits.</div>
+        <div class="row"><strong>Fishing is represented as loss of herbivory.</strong> Real fishing is broader, but the decisive effect here is the removal of grazers, the lever that controls the tipping point.</div>
+        <div class="row"><strong>Pollution is represented as nutrient enrichment, as one clean lever.</strong> In reality nutrient effects are strongly context-dependent and usually entangled with herbivory rather than acting as one uniform driver (Rasher et al. 2012).</div>
+        <div class="row"><strong>Bleaching is heat-driven coral stress and mortality, not a full physiological model.</strong> Real bleaching depends on cumulative heat, light, taxon, symbiont type, prior damage and follow-on processes such as disease.</div>
+        <div class="row"><strong>Turf <code>T</code> stands for cropped algal turf, not the whole universe of non-coral states.</strong> Real reefs can also shift into states dominated by sponges, soft corals, corallimorpharians or urchin barrens (Norström et al. 2009).</div>
+        <div class="row"><strong>Not represented at all:</strong> spatial structure and neighbourhood effects, larval dispersal, sedimentation, ocean acidification, disease, coral species and functional-group differences, and hydrodynamics.</div>
+      </div>
+
+      <p class="body">The reason for holding the line is the same as the reason for the piece. The goal is not ecological completeness; it is to make one well-established idea, alternative stable states and the asymmetry of recovery, visible and legible to a non-specialist. Every extra variable would make the model more realistic and less teachable, and past a point it would bury the one idea the piece exists to convey.</p>
+
+      <h3 class="sub">Limits of interpretation</h3>
+      <p class="body">Threshold Reef should be read as a conceptual instrument, not a prediction. It is built on the Caribbean-derived analytical core of a single model and is not calibrated to any particular reef, so the thresholds it shows are heuristic learning objects, not universal, site-independent numbers. Region and habitat matter: thresholds and resilience differ between regions, and Caribbean values should not be sold as global defaults (Mumby et al. 2016). The cleanest one-line statement of what the piece is: it is modelled on a classic Caribbean coral–macroalgal mechanism that can produce bistability and hysteresis under certain conditions, and it serves understanding of feedbacks and tipping points, not prediction of specific reef trajectories.</p>
+
+      <div class="note">
+        <h4>A note on how this was built</h4>
+        <p>My work here is as a Scientific Learning Experience Designer with a biology PhD, not as a reef modeller. The background in tropical marine ecology comes from graduate study in the ISATEC programme at the University of Bremen, run together with the Leibniz Centre for Tropical Marine Research (ZMT), which is enough to engage this literature seriously and to care that the model's framing is fair. The scientific grounding rests on the cited work; my contribution is turning that literature into a transparent, inspectable learning experience, rather than asserting authority over reef theory.</p>
+      </div>
+    </section>
+
+    <!-- ===== WHY REEFS, WHY NOW ===== -->
+    <section class="section">
+      <div class="sec-head">
+        <div class="sec-chip">🌍</div>
+        <h2>Why reefs, why now</h2>
+      </div>
+      <p class="body">Coral reefs occupy a thin sliver of the ocean, yet a large share of marine life and the livelihoods of hundreds of millions of people depend on them. The pressure on them is not a single recent emergency but a long, worsening trend: mass-bleaching events have recurred and intensified over the past three decades, from the late 1990s and the severe years of 2016 to 2017 through to the 2023 to 2025 global event, the most extensive yet recorded, which exposed roughly 84 percent of the world's reef area to bleaching-level heat across all three ocean basins before NOAA judged it to have likely ended in mid-2025 (ICRI 2025; NOAA Coral Reef Watch 2026). The IPCC's Special Report on Global Warming of 1.5°C projects that warm-water reefs would decline by 70 to 90 percent at 1.5°C of warming, and that more than 99 percent would be lost at 2°C (IPCC 2018). The 2023 to 2025 event is best understood as the most recent and largest reminder of that trajectory, not as a sudden new crisis. A piece that lets a person feel how a reef tips, and how much harder it is to bring back than to lose, is a small contribution to why that matters.</p>
+    </section>
+
+    <!-- ===== REFERENCES ===== -->
+    <section class="section">
+      <div class="sec-head">
+        <div class="sec-chip">📚</div>
+        <h2>References</h2>
+      </div>
+      <div class="refs">
+        <div class="ref-group">
+          <div class="ref-cat">Source model</div>
+          <div class="ref"><span class="num">1.</span><span>Mumby, P. J., Hastings, A. &amp; Edwards, H. J. (2007). Thresholds and the resilience of Caribbean coral reefs. <em>Nature</em>, 450(7166), 98–101. DOI: 10.1038/nature06252.</span></div>
+        </div>
+        <div class="ref-group">
+          <div class="ref-cat">Coral–macroalgal competition and phase shifts</div>
+          <div class="ref"><span class="num">2.</span><span>Hughes, T. P. (1994). Catastrophes, phase shifts, and large-scale degradation of a Caribbean coral reef. <em>Science</em>, 265(5178), 1547–1551. DOI: 10.1126/science.265.5178.1547.</span></div>
+          <div class="ref"><span class="num">3.</span><span>Nugues, M. M. &amp; Bak, R. P. M. (2006). Differential competitive abilities between Caribbean coral species and a brown alga. <em>Marine Ecology Progress Series</em>, 315, 75–86. DOI: 10.3354/meps315075.</span></div>
+        </div>
+        <div class="ref-group">
+          <div class="ref-cat">Herbivory and grazing</div>
+          <div class="ref"><span class="num">4.</span><span>Mumby, P. J., Dahlgren, C. P., Harborne, A. R., et al. (2006). Fishing, trophic cascades, and the process of grazing on coral reefs. <em>Science</em>, 311(5757), 98–101. DOI: 10.1126/science.1121129.</span></div>
+          <div class="ref"><span class="num">5.</span><span>Carpenter, R. C. &amp; Edmunds, P. J. (2006). Local and regional scale recovery of <em>Diadema</em> promotes recruitment of scleractinian corals. <em>Ecology Letters</em>, 9(3), 271–280. DOI: 10.1111/j.1461-0248.2005.00866.x.</span></div>
+        </div>
+        <div class="ref-group">
+          <div class="ref-cat">Nutrient enrichment and eutrophication</div>
+          <div class="ref"><span class="num">6.</span><span>Jompa, J. &amp; McCook, L. J. (2002). The effects of nutrients and herbivory on competition between a hard coral (<em>Porites cylindrica</em>) and a brown alga (<em>Lobophora variegata</em>). <em>Limnology and Oceanography</em>, 47(2), 527–534. DOI: 10.4319/lo.2002.47.2.0527.</span></div>
+          <div class="ref"><span class="num">7.</span><span>Lapointe, B. E. (1997). Nutrient thresholds for bottom-up control of macroalgal blooms on coral reefs in Jamaica and southeast Florida. <em>Limnology and Oceanography</em>, 42(5pt2), 1119–1131. DOI: 10.4319/lo.1997.42.5_part_2.1119.</span></div>
+        </div>
+        <div class="ref-group">
+          <div class="ref-cat">Bleaching as heat-stress-driven mortality</div>
+          <div class="ref"><span class="num">8.</span><span>Hoegh-Guldberg, O. (1999). Climate change, coral bleaching and the future of the world's coral reefs. <em>Marine and Freshwater Research</em>, 50(8), 839–866. DOI: 10.1071/MF99078.</span></div>
+          <div class="ref"><span class="num">9.</span><span>Hughes, T. P., Kerry, J. T., Álvarez-Noriega, M., et al. (2017). Global warming and recurrent mass bleaching of corals. <em>Nature</em>, 543(7645), 373–377. DOI: 10.1038/nature21707.</span></div>
+        </div>
+        <div class="ref-group">
+          <div class="ref-cat">Alternative stable states and hysteresis: the debate</div>
+          <div class="ref"><span class="num">10.</span><span>Bruno, J. F., Sweatman, H., Precht, W. F., Selig, E. R. &amp; Schutte, V. G. W. (2009). Assessing evidence of phase shifts from coral to macroalgal dominance on coral reefs. <em>Ecology</em>, 90(6), 1478–1484. DOI: 10.1890/08-1781.1.</span></div>
+          <div class="ref"><span class="num">11.</span><span>Dudgeon, S. R., Aronson, R. B., Bruno, J. F. &amp; Precht, W. F. (2010). Phase shifts and stable states on coral reefs. <em>Marine Ecology Progress Series</em>, 413, 201–216. DOI: 10.3354/meps08751.</span></div>
+          <div class="ref"><span class="num">12.</span><span>Mumby, P. J., Steneck, R. S. &amp; Hastings, A. (2013). Evidence for and against the existence of alternate attractors on coral reefs. <em>Oikos</em>, 122(4), 481–491. DOI: 10.1111/j.1600-0706.2012.00262.x.</span></div>
+          <div class="ref"><span class="num">13.</span><span>Schmitt, R. J., Holbrook, S. J., Davis, S. L., Brooks, A. J. &amp; Adam, T. C. (2019). Experimental support for alternative attractors on coral reefs. <em>PNAS</em>, 116(10), 4372–4381. DOI: 10.1073/pnas.1812412116.</span></div>
+        </div>
+        <div class="ref-group">
+          <div class="ref-cat">Beyond coral–macroalgal shifts, and context dependence</div>
+          <div class="ref"><span class="num">14.</span><span>Norström, A. V., Nyström, M., Lokrantz, J. &amp; Folke, C. (2009). Alternative states on coral reefs: beyond coral–macroalgal phase shifts. <em>Marine Ecology Progress Series</em>, 376, 295–306. DOI: 10.3354/meps07815.</span></div>
+          <div class="ref"><span class="num">15.</span><span>Rasher, D. B., Engel, S., Bonito, V., Fraser, G. J., Montoya, J. P. &amp; Hay, M. E. (2012). Effects of herbivory, nutrients, and reef protection on algal proliferation and coral growth on a tropical reef. <em>Oecologia</em>, 169(1), 187–198. DOI: 10.1007/s00442-011-2174-y.</span></div>
+          <div class="ref"><span class="num">16.</span><span>Mumby, P. J., Steneck, R. S., Adjeroud, M. &amp; Arnold, S. N. (2016). High resilience masks underlying sensitivity to algal phase shifts of Pacific coral reefs. <em>Oikos</em>, 125(5), 644–655. DOI: 10.1111/oik.02673.</span></div>
+        </div>
+        <div class="ref-group">
+          <div class="ref-cat">Recent global status and projections</div>
+          <div class="ref"><span class="num">17.</span><span>IPCC (2018). <em>Global Warming of 1.5°C</em>. Special Report (SR15), Summary for Policymakers, B.4.2. Geneva: Intergovernmental Panel on Climate Change.</span></div>
+          <div class="ref"><span class="num">18.</span><span>International Coral Reef Initiative (2025). 84% of the world's coral reefs impacted in the most intense global coral bleaching event ever. ICRI statement, April 2025.</span></div>
+          <div class="ref"><span class="num">19.</span><span>NOAA Coral Reef Watch / NESDIS (2026). World's fourth mass coral bleaching event likely ended in 2025.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FOOTER ROUTING ===== -->
+    <div class="foot">
+      <a class="btn-primary" href="index.html">→ View the simulation</a>
+      <a class="btn-ghost" href="https://tobias-schneider-phd.github.io/">Back to portfolio</a>
+      <a class="btn-ghost" href="mailto:tobi.schneider44@gmail.com">Contact</a>
+    </div>
+
+  </main>
+
+</body>
+</html>
