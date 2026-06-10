@@ -1221,6 +1221,7 @@
       fishEls: document.querySelectorAll('.fish'),
       debugOverlay: $('debug-overlay'),
       pollutionHaze: $('pollution-haze'),
+      reefContainer: $('reef-container'),
     };
 
     // ==========================================
@@ -1371,6 +1372,13 @@
     function updateWaterHaze() {
       const op = clamp(mapR(state.nutrients, 20, 100, 0, 0.22), 0, 0.22);
       el.pollutionHaze.setAttribute('opacity', op.toFixed(3));
+      // Tint the letterbox margins (container background) with the same murky overlay as the
+      // in-scene haze, so on wide screens the sides green up in step with the stage instead of
+      // staying blue and showing a hard seam. Two stacked gradients = the clean water gradient
+      // with the gMurk colours over it at the same opacity, matching the SVG composite. Visual only.
+      el.reefContainer.style.background =
+        `linear-gradient(180deg, rgba(95,125,57,${op}) 0%, rgba(63,90,46,${op}) 55%, rgba(41,58,34,${op}) 100%),`
+        + `linear-gradient(180deg, #2a94b5 0%, #18658a 25%, #0c3560 55%, #091524 100%)`;
     }
 
     // ==========================================
