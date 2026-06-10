@@ -136,7 +136,10 @@
     #temp-slider.hot  { --fill-color: var(--danger); }
 
     /* ===== REEF CONTAINER ===== */
-    #reef-container { flex: 1; position: relative; overflow: hidden; }
+    #reef-container { flex: 1; position: relative; overflow: hidden;
+      /* Same vertical water gradient as the scene (gWater), so when the SVG fits
+         with "meet" the side areas read as continuous water, not letterbox bars. */
+      background: linear-gradient(180deg, #2a94b5 0%, #18658a 25%, #0c3560 55%, #091524 100%); }
     #reef-scene { width: 100%; height: 100%; display: block; }
 
     /* ===== WATER COLUMN HUD ===== */
@@ -315,6 +318,7 @@
       overflow-y: auto;
     }
     #info-overlay.visible { opacity: 1; pointer-events: auto; }
+    #info-overlay:focus { outline: none; }
 
     .info-content { max-width: 560px; padding: 12px 0 32px; }
     .info-content h2 { font-size: 1.5rem; font-weight: 400; margin-bottom: 0; color: var(--accent); text-align: center; text-shadow: 0 2px 18px rgba(78,205,196,0.35); }
@@ -345,9 +349,16 @@
     .info-try p + p { margin-top: 12px; }
     .info-try p strong { color: var(--accent); font-weight: 600; }
 
-    /* Quiet bridge from the in-sim panel to the standalone model-notes page. */
-    .info-fullnotes { margin: 22px 0 0; text-align: center; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
-    .info-fullnotes a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(78,205,196,0.4); }
+    /* Bridge from the in-sim panel to the standalone model-notes page. Made deliberately
+       visible: for learners it is optional, but the intended portfolio audience (scientists,
+       institutes) should not miss the deeper, inspectable layer. */
+    .info-fullnotes {
+      margin: 28px 0 4px; padding: 16px 20px; text-align: center;
+      background: rgba(78,205,196,0.08); border: 1px solid rgba(78,205,196,0.30); border-radius: 12px;
+      font-size: 0.95rem; color: var(--text-secondary); line-height: 1.55;
+    }
+    .info-fullnotes strong { color: var(--accent); font-weight: 600; }
+    .info-fullnotes a { color: var(--accent); font-weight: 600; text-decoration: none; border-bottom: 1px solid rgba(78,205,196,0.55); }
     .info-fullnotes a:hover { border-bottom-color: var(--accent); }
 
     #close-info-btn {
@@ -454,7 +465,7 @@
         <div id="hud-narration"></div>
       </div>
 
-      <svg id="reef-scene" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <svg id="reef-scene" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <defs>
           <linearGradient id="gWater" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stop-color="#2a94b5"/>
@@ -1027,7 +1038,7 @@
       </div>
     </div>
 
-    <div id="info-overlay" role="dialog" aria-modal="true" aria-labelledby="info-title" aria-hidden="true" inert>
+    <div id="info-overlay" role="dialog" aria-modal="true" aria-labelledby="info-title" aria-hidden="true" inert tabindex="-1">
       <div class="info-content">
         <h2 id="info-title">The Science Behind It</h2>
         <div class="info-rule"></div>
@@ -1093,7 +1104,7 @@
           <p>This isn't hypothetical. The 2023 to 2025 global bleaching event was the most extensive yet recorded, exposing about <strong>84% of the world's reef area</strong> to bleaching-level heat across all three ocean basins. It showed how repeated marine heatwaves can push reefs into an era of chronic stress. Local protection cannot stop global warming, but protecting grazers and reducing nutrient runoff can help keep reefs more resilient, exactly the levers in your hands here.</p>
         </div>
 
-        <p class="info-fullnotes">Want the model assumptions, equations and sources? <a href="science.html">Read the full model notes.</a></p>
+        <p class="info-fullnotes"><strong>Want to look under the hood?</strong><br>Read the full <a href="science.html">model notes</a> for the assumptions, equations, verification and sources behind this simulation.</p>
 
         <button id="close-info-btn">Back to the Reef</button>
       </div>
@@ -1614,7 +1625,8 @@
       el.infoOverlay.removeAttribute('aria-hidden');  // expose to tab order and the a11y tree while open
       el.infoOverlay.inert = false;
       el.infoOverlay.classList.add('visible');
-      el.closeInfoBtn.focus();
+      el.infoOverlay.scrollTop = 0;   // always open at the top of the notes, not scrolled down
+      el.infoOverlay.focus();         // move focus into the dialog itself, not onto the bottom button
     }
     function onCloseInfo() { el.infoOverlay.classList.remove('visible'); el.infoOverlay.setAttribute('aria-hidden', 'true'); el.infoOverlay.inert = true; el.infoBtn.focus(); }
 
