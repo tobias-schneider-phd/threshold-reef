@@ -1272,7 +1272,7 @@
     }
 
     function updateFish(dt) {
-      const W = 800, M = 50;
+      const W = 800, M = 50, FADE = 80;  // FADE: edge zone (viewBox units) over which fish dissolve out/in at the wrap
       const visCount = Math.ceil((state.fishPopulation / 100) * fishState.length);
 
       fishState.forEach((fs, i) => {
@@ -1280,9 +1280,9 @@
         fs.targetVis = i < visCount;
 
         if (fs.targetVis && !fs.vis) {
+          // Returning fish re-enter from the off-screen edge they face, so the edge-fade carries them in.
           fs.vis = true;
-          f.style.transition = 'opacity 1.5s ease';
-          f.style.opacity = '1';
+          fs.x = fs.vx >= 0 ? -M : W + M;
         } else if (!fs.targetVis && fs.vis) {
           // Fish should leave: swim off to the right at a FIXED boosted speed. Must be
           // idempotent — this branch runs every frame while the fish is exiting, so the old
@@ -1303,6 +1303,14 @@
           f.style.opacity = '0';
           fs.x = -M;
           fs.vx = Math.abs(fs.speed);
+        }
+
+        // Soft edge fade: opacity tapers to 0 within FADE of either stage edge, so fish dissolve
+        // out and re-emerge instead of hard-popping when they wrap. Driven per frame (smooth at
+        // 60 fps), so no CSS transition needed; visual only, no model state involved.
+        if (fs.vis) {
+          const dEdge = Math.min(fs.x + M, (W + M) - fs.x);
+          f.style.opacity = String(Math.max(0, Math.min(1, dEdge / FADE)));
         }
 
         const sx = fs.vx >= 0 ? 1 : -1;
