@@ -1,1775 +1,579 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Threshold Reef</title>
-  <style>
-    :root {
-      --water-deep: #091524;
-      --water-mid: #0c3560;
-      --water-surface: #18658a;
-      --water-glow: #2a94b5;
-      --panel-bg: rgba(8, 18, 34, 0.88);
-      --panel-border: rgba(255, 255, 255, 0.1);
-      --text-primary: #f0f0f0;
-      --text-secondary: rgba(255, 255, 255, 0.65);
-      --accent: #4ecdc4;
-      --accent-dim: rgba(78, 205, 196, 0.15);
-      --danger: #ff6b6b;
-      --warning: #ffd93d;
-      --healthy-glow: rgba(78, 205, 196, 0.12);
-      --stress-glow: rgba(255, 217, 61, 0.12);
-      --critical-glow: rgba(255, 107, 107, 0.12);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tobias Schneider · Learning Experience Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal-deep:#0C4A56;   /* dunkler Anker fürs Kontrast */
+    --teal:#16808F;
+    --teal-bright:#2AA6B3;
+    --aqua:#9AD7DC;
+    --aqua-soft:#D6EFF0;
+    --coral:#EE6C4D;
+    --coral-deep:#D24F33;
+    --sand:#F6E7D3;
+    --bg:#F1F8F8;
+    --surface:#FFFFFF;
+    --surface-warm:#FCF5EC;
+    --ink:#0F2C33;
+    --ink-soft:#4E6970;
+    --line:rgba(15,44,51,.11);
+    --shadow-sm:0 2px 14px rgba(12,74,86,.07);
+    --shadow:0 16px 48px rgba(12,74,86,.16);
+    --r:22px;
+    --maxw:1140px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  h1,h2,h3,.serif{font-family:'Fraunces',serif;font-weight:600;line-height:1.08;letter-spacing:-.01em}
+  /* Fraunces nutzt sonst verschnoerkelte Mediaevalziffern (die "5" wirkt schief) -> auf Versalziffern stellen */
+  .pnum,.p-eyebrow .pn{font-variant-numeric:lining-nums tabular-nums;font-feature-settings:"lnum" 1,"tnum" 1}
+  ::selection{background:var(--coral);color:#fff}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+  .eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);display:inline-flex;align-items:center;gap:10px}
+  .eyebrow::before{content:"";width:26px;height:2px;background:var(--coral);border-radius:2px}
+  a{color:inherit;text-decoration:none}
+  .link-coral{color:var(--coral);font-weight:600;display:inline-flex;align-items:center;gap:7px;transition:gap .2s ease}
+  .link-coral:hover{gap:12px}
+  .link-muted{color:var(--ink-soft);font-weight:600;display:inline-flex;align-items:center;gap:7px;transition:gap .2s ease,color .2s ease}
+  .link-muted:hover{gap:12px;color:var(--teal-deep)}
+  .btn{display:inline-flex;align-items:center;gap:10px;background:var(--coral);color:#fff;font-weight:600;font-size:17px;padding:15px 28px;border-radius:100px;border:none;cursor:pointer;box-shadow:0 8px 22px rgba(238,108,77,.32);transition:transform .2s ease,box-shadow .2s ease}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(238,108,77,.42)}
+  .btn-ghost{background:transparent;color:var(--teal-deep);box-shadow:none;border:1.5px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--teal);background:rgba(22,128,143,.05);transform:translateY(-2px)}
 
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  /* NAV */
+  nav{position:sticky;top:0;z-index:50;background:rgba(241,248,248,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .brand{display:flex;align-items:center;gap:12px;font-family:'Fraunces',serif;font-weight:600;font-size:20px}
+  .brand .dot{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--teal-bright),var(--teal-deep));position:relative;flex:none}
+  .brand .dot::after{content:"";position:absolute;width:11px;height:11px;border-radius:50%;background:var(--coral);right:5px;bottom:5px}
+  .nav-links{display:flex;align-items:center;gap:30px;font-size:15.5px;font-weight:500;color:var(--ink-soft)}
+  .nav-links a:hover{color:var(--teal)}
+  .lang{display:inline-flex;border:1px solid var(--line);border-radius:100px;overflow:hidden;font-size:13px;font-weight:600}
+  .lang button{padding:6px 13px;color:var(--ink-soft);cursor:pointer;background:none;border:none;font:inherit;line-height:1}
+  .lang button.on{background:var(--teal);color:#fff}
 
-    html, body {
-      width: 100%; height: 100%; overflow: hidden;
-      background: var(--water-deep);
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      color: var(--text-primary);
-    }
+  /* SPRACHE: nur die aktive Sprache zeigen (DE = Standard) */
+  html[lang="de"] .en{display:none!important}
+  html[lang="en"] .de{display:none!important}
+  @media(max-width:760px){.nav-links a:not(.lang-wrap){display:none}}
 
-    .sr-only {
-      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-    }
+  /* HERO */
+  .hero{position:relative;padding:76px 0 0;overflow:hidden}
+  .blob{position:absolute;border-radius:50%;filter:blur(10px);z-index:0}
+  .blob.b1{width:420px;height:420px;background:radial-gradient(circle at 30% 30%,var(--aqua),transparent 70%);top:-130px;right:-70px;opacity:.75}
+  .blob.b2{width:320px;height:320px;background:radial-gradient(circle at 50% 50%,rgba(238,108,77,.45),transparent 70%);top:120px;left:-120px;opacity:.5}
+  .hero-text{position:relative;z-index:1;max-width:920px}
+  .hero h1{font-size:clamp(30px,4.3vw,49px);font-weight:600;max-width:17em}
+  .hero h1 em{font-style:normal;color:var(--teal)}
+  .hero p.sub{font-size:19px;color:var(--ink-soft);margin:24px 0 30px;max-width:40em}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .hero-art{position:relative;z-index:1;margin-top:50px;width:100%;aspect-ratio:16/9;min-height:300px;border-radius:26px;background:radial-gradient(120% 130% at 75% 0%,rgba(42,166,179,.22),transparent 55%),linear-gradient(155deg,var(--teal-deep),#082f38);box-shadow:var(--shadow);overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .hero-art .placeholder{color:rgba(255,255,255,.66);text-align:center;padding:28px;font-size:14.5px;line-height:1.55;z-index:2;max-width:30em}
+  .hero-art .placeholder b{display:block;font-family:'Fraunces',serif;font-size:18px;color:#fff;margin-bottom:7px}
+  .bubble{position:absolute;border-radius:50%;backdrop-filter:blur(2px)}
+  .bubble.x1{width:120px;height:120px;background:rgba(154,215,220,.26);border:1px solid rgba(255,255,255,.22);top:40px;left:8%}
+  .bubble.x2{width:70px;height:70px;background:rgba(238,108,77,.30);border:1px solid rgba(255,255,255,.18);bottom:46px;right:14%}
+  .bubble.x3{width:170px;height:170px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);bottom:-50px;right:34%}
+  .bubble.x4{width:54px;height:54px;background:rgba(154,215,220,.20);border:1px solid rgba(255,255,255,.16);top:30%;right:9%}
+  @media(max-width:760px){.hero-art{aspect-ratio:4/3;min-height:0}}
 
-    #app { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; }
+  .wave{display:block;width:100%;height:70px}
+  .sect{padding:74px 0}
+  .sect-head{max-width:38em;margin-bottom:46px}
+  .sect-head h2{font-size:clamp(28px,3.6vw,40px);margin:16px 0 0}
 
-    /* ===== CONTROLS BAR ===== */
-    #controls {
-      /* Raised glass bar: vertical sheen (top a touch lighter), a bright top edge and a soft
-         drop shadow give it depth instead of reading as a flat strip. Extra side padding pulls
-         Reset and The Science a little toward the centre; the sliders stay centred. */
-      background: linear-gradient(180deg, rgba(17,33,55,0.9) 0%, rgba(8,18,34,0.9) 100%);
-      backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
-      border-bottom: 1px solid rgba(0,0,0,0.35);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 6px 18px rgba(0,0,0,0.35);
-      padding: 11px 36px;
-      display: flex; align-items: center; gap: 14px;
-      z-index: 20;
-      opacity: 0; transform: translateY(-100%);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-    #controls.visible { opacity: 1; transform: translateY(0); }
+  /* SÄULEN */
+  .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+  .pillar{background:var(--surface);border-radius:var(--r);padding:34px 30px 32px;box-shadow:var(--shadow-sm);border:1px solid var(--line);transition:box-shadow .25s ease,border-color .25s ease}
+  .pillar:hover{box-shadow:0 18px 40px rgba(12,74,86,.13);border-color:rgba(238,108,77,.55)}
+  .pillar:nth-child(2){transform:translateY(24px)}
+  .pillar .pnum{font-family:'Fraunces',serif;font-size:16px;color:var(--coral);font-weight:600}
+  .pillar .picon{width:54px;height:54px;border-radius:14px;background:var(--aqua-soft);display:flex;align-items:center;justify-content:center;margin:14px 0 18px;color:var(--teal-deep)}
+  .pillar h3{font-size:22px;margin-bottom:10px}
+  .pillar p{font-size:16px;color:var(--ink-soft)}
+  @media(max-width:820px){.pillars{grid-template-columns:1fr}.pillar:nth-child(2){transform:none}}
 
-    .ctrl-btn {
-      border-radius: 20px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%);
-      border: 1px solid rgba(255,255,255,0.14);
-      color: var(--text-primary);
-      font-size: 13px; font-weight: 500;
-      cursor: pointer;
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 8px 16px;
-      white-space: nowrap;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 2px 6px rgba(0,0,0,0.28);
-      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-      flex-shrink: 0;
-    }
-    .ctrl-btn:hover {
-      background: linear-gradient(180deg, rgba(78,205,196,0.22) 0%, rgba(78,205,196,0.10) 100%);
-      transform: translateY(-1px) scale(1.03);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 10px rgba(0,0,0,0.34);
-    }
-    .ctrl-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .ctrl-btn .ico { font-size: 14px; }
+  /* KI-VORTEIL */
+  .band{background:linear-gradient(135deg,var(--teal-deep),var(--teal));color:#fff;position:relative;overflow:hidden}
+  .band::after{content:"";position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(238,108,77,.45),transparent 70%);top:-90px;right:-60px}
+  .band .wrap{position:relative;z-index:1;padding:64px 28px;text-align:center;max-width:900px}
+  .band .eyebrow{color:#fff}.band .eyebrow::before{background:var(--coral)}
+  .band blockquote{font-family:'Fraunces',serif;font-size:clamp(22px,3vw,31px);line-height:1.32;margin:22px auto 0;font-weight:500}
+  .band blockquote strong{color:var(--aqua);font-weight:600}
 
-    #info-btn { background: linear-gradient(180deg, rgba(78,205,196,0.26) 0%, rgba(78,205,196,0.12) 100%); border-color: rgba(78,205,196,0.45); color: var(--accent); font-weight: 600; box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 2px 8px rgba(78,205,196,0.18); }
-    /* Gentle, occasional blink to draw the eye to The Science — only added (via .nudge) after
-       the user has played a little, and removed once they open the panel. Not on from load. */
-    @keyframes scienceBlink {
-      0%, 86%, 100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 0 0 0 rgba(78,205,196,0); background: linear-gradient(180deg, rgba(78,205,196,0.26) 0%, rgba(78,205,196,0.12) 100%); }
-      91%, 96%      { box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0 16px 3px rgba(78,205,196,0.5); background: linear-gradient(180deg, rgba(78,205,196,0.4) 0%, rgba(78,205,196,0.2) 100%); }
-    }
-    #info-btn.nudge { animation: scienceBlink 9s ease-in-out infinite; }
+  /* STÜCKE */
+  .piece{display:grid;grid-template-columns:.85fr 1.15fr;gap:46px;align-items:center;padding:44px 0}
+  .piece.flip .p-text{order:2}.piece.flip .p-art{order:1}
+  .p-eyebrow{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--teal);margin-bottom:4px}
+  .p-eyebrow .pn{font-family:'Fraunces',serif;font-size:19px;font-weight:600;color:var(--coral);letter-spacing:normal}
+  .p-eyebrow .p-lang{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:none;color:var(--teal-deep);background:var(--aqua-soft);border:1px solid rgba(22,128,143,.22);border-radius:999px;padding:2px 9px;line-height:1.4}
+  .p-text h3{font-size:clamp(24px,3vw,33px);margin:6px 0 12px}
+  .p-row{margin:13px 0}
+  .p-row .lbl{font-size:16.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--teal-deep);display:flex;align-items:center;gap:9px;margin-bottom:5px}
+  .p-row .lbl::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--coral);flex:none}
+  .p-row p{font-size:16.5px;color:var(--ink-soft)}
+  .p-row p strong{color:var(--ink);font-weight:600}
+  .p-links{display:flex;gap:24px;flex-wrap:wrap;margin-top:14px}
+  .p-art{aspect-ratio:4/3;border-radius:var(--r);overflow:hidden;position:relative;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;border:1px solid var(--line)}
+  .p-art .ph{color:rgba(255,255,255,.72);font-size:13px;text-align:center;padding:20px;z-index:2;line-height:1.5}
+  .p-art .ph b{display:block;font-family:'Fraunces',serif;color:#fff;font-size:15px;margin-bottom:5px}
+  .art-coral{background:linear-gradient(150deg,#15707e,#0c4b56)}
+  .art-coral::before{content:"";position:absolute;inset:0;background:radial-gradient(80% 80% at 20% 90%,rgba(238,108,77,.4),transparent 60%)}
+  .art-sme{background:linear-gradient(150deg,#1F2530,#2c3340)}
+  .art-sme::before{content:"";position:absolute;inset:0;background:radial-gradient(70% 70% at 85% 15%,rgba(232,184,114,.35),transparent 60%)}
+  .art-moon{background:linear-gradient(160deg,#101826,#05070d)}
+  .art-moon::before{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#d7dde6,#7d8794);top:30px;right:36px;box-shadow:0 0 60px rgba(154,215,220,.3)}
+  .art-detektiv{background:linear-gradient(150deg,#2f7d3a,#13502a)}
+  .art-detektiv::before{content:"";position:absolute;inset:0;background:radial-gradient(70% 70% at 80% 80%,rgba(246,231,211,.35),transparent 55%)}
+  .art-human{background:linear-gradient(150deg,#3a6b8c,#1f3d54)}
+  .art-human::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 60% at 25% 30%,rgba(238,108,77,.3),transparent 55%)}
+  .piece + .piece{border-top:1px solid var(--line)}
+  @media(max-width:820px){.piece{grid-template-columns:1fr;gap:24px}.piece.flip .p-text{order:1}.piece.flip .p-art{order:2}.p-art{max-width:480px}}
 
-    .sliders-wrap { display: flex; flex: 1; gap: 20px; justify-content: center; min-width: 0; }
-    .sld-group { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 130px; max-width: 210px; }
-    .sld-icon { font-size: 21px; flex-shrink: 0; line-height: 1; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.45)); }
-    .sld-track { display: flex; flex-direction: column; flex: 1; gap: 2px; }
-    .sld-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: rgba(255,255,255,0.88); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-    .sld-ends { display: flex; justify-content: space-between; font-size: 10.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; color: rgba(255,255,255,0.62); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+  /* ÜBER MICH */
+  .about{background:var(--surface-warm)}
+  .about .wrap{display:grid;grid-template-columns:.7fr 1.3fr;gap:50px;align-items:start;padding:74px 28px}
+  .portrait{aspect-ratio:4/5;border-radius:24px;max-width:236px;margin:6px auto 0;background:var(--aqua-soft);overflow:hidden;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:var(--shadow);border:5px solid #fff}
+  .about h2{font-size:clamp(26px,3.4vw,38px);margin-bottom:18px}
+  .about p{color:var(--ink-soft);font-size:17.5px;margin-bottom:16px;max-width:38em}
+  .contact-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:26px}
+  @media(max-width:760px){.about .wrap{grid-template-columns:1fr;gap:30px;text-align:center}.about p{margin-left:auto;margin-right:auto}.contact-row{justify-content:center}}
 
-    input[type="range"] {
-      -webkit-appearance: none; appearance: none;
-      width: 100%; height: 7px;
-      /* Filled groove: everything left of the thumb is tinted with the lever's --fill-color, the
-         rest is a clearly lighter track, so the slider's extent AND the thumb position read at a
-         glance even on the dark bar. --fill (0..100%) is set by JS to follow the thumb. */
-      --fill-color: var(--accent);
-      background: linear-gradient(to right,
-        var(--fill-color) 0%, var(--fill-color) var(--fill, 15%),
-        rgba(255,255,255,0.20) var(--fill, 15%), rgba(255,255,255,0.20) 100%);
-      border-radius: 4px;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.45);
-      outline: none; cursor: pointer;
-    }
-    /* Firefox draws its own track/progress; make them transparent so the input gradient shows. */
-    input[type="range"]::-moz-range-track { background: transparent; height: 7px; border-radius: 4px; }
-    input[type="range"]::-moz-range-progress { background: transparent; }
-    /* Thumb as a glossy bead: radial gradient (light catching upper-left) + a bright inner rim
-       and a soft cast shadow read as a raised knob rather than a flat dot. */
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 18px; height: 18px;
-      background: radial-gradient(circle at 35% 30%, #8af0e8 0%, var(--accent) 55%, #2f9c95 100%);
-      border-radius: 50%; cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.5);
-      transition: transform 0.15s, background 0.3s;
-    }
-    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
-    input[type="range"]::-moz-range-thumb {
-      width: 18px; height: 18px; border: none; border-radius: 50%; cursor: pointer;
-      background: radial-gradient(circle at 35% 30%, #8af0e8 0%, var(--accent) 55%, #2f9c95 100%);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.5);
-    }
-    #temp-slider.warm::-webkit-slider-thumb { background: radial-gradient(circle at 35% 30%, #ffe88a 0%, var(--warning) 55%, #c9a300 100%); }
-    #temp-slider.hot::-webkit-slider-thumb  { background: radial-gradient(circle at 35% 30%, #ff9b9b 0%, var(--danger) 55%, #c23b3b 100%); }
-    #temp-slider.warm::-moz-range-thumb { background: radial-gradient(circle at 35% 30%, #ffe88a 0%, var(--warning) 55%, #c9a300 100%); }
-    #temp-slider.hot::-moz-range-thumb  { background: radial-gradient(circle at 35% 30%, #ff9b9b 0%, var(--danger) 55%, #c23b3b 100%); }
-    /* Temperature is the one lever with a literal colour metaphor, so its fill warms too.
-       Fishing and Pollution keep the neutral teal fill (no danger-zone colour-coding). */
-    #temp-slider.warm { --fill-color: var(--warning); }
-    #temp-slider.hot  { --fill-color: var(--danger); }
+  footer{padding:40px 0;text-align:center;color:var(--ink-soft);font-size:14px}
+  footer .brand{justify-content:center;margin-bottom:10px;font-size:17px}
 
-    /* ===== REEF CONTAINER ===== */
-    #reef-container { flex: 1; position: relative; overflow: hidden;
-      /* Same vertical water gradient as the scene (gWater), so when the SVG fits
-         with "meet" the side areas read as continuous water, not letterbox bars. */
-      background: linear-gradient(180deg, #2a94b5 0%, #18658a 25%, #0c3560 55%, #091524 100%); }
-    #reef-scene { width: 100%; height: 100%; display: block; }
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+  .hero h1,.hero .sub,.hero .hero-cta,.hero-art{opacity:0;animation:rise .8s ease forwards}
+  .hero h1{animation-delay:.05s}.hero .sub{animation-delay:.18s}.hero .hero-cta{animation-delay:.32s}.hero-art{animation-delay:.42s}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .hero h1,.hero .sub,.hero .hero-cta{transform:translateY(18px)}
+  .hero-art{transform:translateY(26px)}
 
-    /* ===== WATER COLUMN HUD ===== */
-    #reef-hud {
-      position: absolute;
-      top: 10%; left: 50%; transform: translateX(-50%);
-      z-index: 12;
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      pointer-events: none;
-      transition: top 0.6s ease;
-    }
+  /* HERO-BILD */
+  .hero-art img{width:100%;height:100%;object-fit:cover;display:block}
 
-    #hud-badge {
-      padding: 8px 22px;
-      border-radius: 24px;
-      font-size: 16px; font-weight: 700;
-      letter-spacing: 0.5px;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.45);
-      backdrop-filter: blur(10px) saturate(1.3); -webkit-backdrop-filter: blur(10px) saturate(1.3);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px rgba(0,0,0,0.3);
-      transition: background 0.5s, border-color 0.5s, color 0.5s, transform 0.5s, padding 0.5s;
-      border: 1px solid transparent;
-    }
-    #hud-badge.healthy {
-      background: rgba(78,205,196,0.14); border-color: rgba(78,205,196,0.25); color: var(--accent);
-    }
-    #hud-badge.stressed {
-      background: rgba(255,217,61,0.16); border-color: rgba(255,217,61,0.3); color: var(--warning);
-      padding: 9px 26px; font-size: 17px;
-    }
-    #hud-badge.critical {
-      background: rgba(255,107,107,0.18); border-color: rgba(255,107,107,0.35); color: var(--danger);
-      padding: 11px 30px; font-size: 19px;
-      animation: hudPulse 2.5s ease-in-out infinite;
-    }
-    #hud-badge.bleaching {
-      background: rgba(255,150,90,0.16); border-color: rgba(255,150,90,0.32); color: #ff9b5a;
-      padding: 9px 26px; font-size: 17px;
-    }
-    @keyframes hudPulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,107,0); }
-      50% { box-shadow: 0 0 18px 4px rgba(255,107,107,0.15); }
-    }
+  /* PORTRÄT */
+  .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 25%;display:block}
 
-    #hud-narration {
-      max-width: 460px;
-      padding: 9px 22px;
-      background: linear-gradient(180deg, rgba(14,28,48,0.66) 0%, rgba(8,18,34,0.72) 100%);
-      backdrop-filter: blur(10px) saturate(1.2); -webkit-backdrop-filter: blur(10px) saturate(1.2);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 16px;
-      font-size: 14.5px; line-height: 1.45;
-      color: rgba(255,255,255,0.88);
-      text-align: center;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 16px rgba(0,0,0,0.28);
-      opacity: 0; transform: translateY(-4px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-    #hud-narration.visible { opacity: 1; transform: translateY(0); }
-    #hud-narration .narr-emoji { margin-right: 5px; }
+  /* KARUSSELL / STÜCK-BILD (ersetzt die alten .art-* Platzhalter) */
+  .media{position:relative;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line)}
+  .media .track{display:flex;height:100%;transition:transform .45s cubic-bezier(.4,0,.2,1)}
+  .media .slide{flex:0 0 100%;height:100%;display:flex;align-items:center;justify-content:center}
+  .media .slide img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
+  /* Rahmen-Seitenverhältnis + Letterbox-Grund je Stück, damit nichts springt */
+  .cz-coral{aspect-ratio:3/2;background:#EEF5F5}
+  .cz-sme{aspect-ratio:5/4;background:#EEF5F5}
+  .cz-detektiv{aspect-ratio:3/4;background:#F1EAE0}
+  .cz-sobh{aspect-ratio:16/9;background:#0B1016}
+  .cz-moon{aspect-ratio:16/9;background:#0B1016}
+  .cz-threshold{aspect-ratio:16/9;background:#EEF5F5}
+  @media(max-width:820px){.cz-detektiv{aspect-ratio:4/5}}
+  /* Pfeile */
+  .c-btn{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.88);backdrop-filter:blur(4px);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--teal-deep);box-shadow:0 4px 14px rgba(12,74,86,.18);opacity:.55;transition:opacity .2s ease,color .2s ease,transform .15s ease;z-index:3;padding:0}
+  .media:hover .c-btn,.media:focus-within .c-btn{opacity:1}
+  .c-btn:hover{color:var(--coral)}
+  .c-btn:active{transform:translateY(-50%) scale(.94)}
+  .c-btn.prev{left:12px}.c-btn.next{right:12px}
+  .c-btn svg{width:19px;height:19px}
+  /* Punkte */
+  .c-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:3}
+  .c-dots button{width:7px;height:7px;border-radius:50%;border:none;background:rgba(15,44,51,.28);cursor:pointer;padding:0;transition:width .2s ease,background .2s ease}
+  .c-dots button.on{background:var(--coral);width:20px;border-radius:4px}
+  .cz-detektiv .c-dots button{background:rgba(15,44,51,.35)}
+  .cz-sobh .c-dots button,.cz-moon .c-dots button{background:rgba(255,255,255,.45)}
+  .cz-sobh .c-dots button.on,.cz-moon .c-dots button.on{background:var(--coral)}
+  /* Zähler */
+  .c-count{position:absolute;top:12px;right:14px;font-size:12px;font-weight:600;color:#fff;background:rgba(15,44,51,.5);backdrop-filter:blur(4px);padding:3px 10px;border-radius:100px;z-index:3;font-variant-numeric:lining-nums tabular-nums}
+  /* Play-Badge fürs Video-Einzelbild */
+  .play-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;pointer-events:none}
+  .play-badge span{width:66px;height:66px;border-radius:50%;background:rgba(238,108,77,.94);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .2s ease}
+  a.media:hover .play-badge span{transform:scale(1.07)}
+  .play-badge svg{width:26px;height:26px;margin-left:4px;fill:#fff}
+  @media(prefers-reduced-motion:reduce){.media .track{transition:none}.c-btn,.play-badge span{transition:none}}
 
-    /* ===== SVG ANIMATIONS ===== */
-    @keyframes rayShimmer { 0%,100% { opacity: 0.10; } 50% { opacity: 0.20; } }
-    .light-ray { animation: rayShimmer 4s ease-in-out infinite; }
-    .light-ray:nth-child(2) { animation-delay: -1s; }
-    .light-ray:nth-child(3) { animation-delay: -2s; }
-    .light-ray:nth-child(4) { animation-delay: -3s; }
-
-    @keyframes coralSway { 0%,100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
-    .coral-group { transform-box: fill-box; transform-origin: bottom center; animation: coralSway 5s ease-in-out infinite; }
-    .coral-group:nth-of-type(2) { animation-delay: -0.8s; animation-duration: 6s; }
-    .coral-group:nth-of-type(3) { animation-delay: -1.6s; animation-duration: 4.5s; }
-    .coral-group:nth-of-type(4) { animation-delay: -2.4s; animation-duration: 7s; }
-    .coral-group:nth-of-type(5) { animation-delay: -3.2s; animation-duration: 5.5s; }
-    .coral-group:nth-of-type(6) { animation-delay: -4s; animation-duration: 6.5s; }
-
-    @keyframes bubbleRise {
-      0% { transform: translateY(0) translateX(0); opacity: 0.45; }
-      50% { transform: translateY(-90px) translateX(8px); opacity: 0.25; }
-      100% { transform: translateY(-180px) translateX(-4px); opacity: 0; }
-    }
-    .bubble { animation: bubbleRise 5s ease-out infinite; }
-    .bubble:nth-child(2) { animation-delay: -1.5s; animation-duration: 6s; }
-    .bubble:nth-child(3) { animation-delay: -3s; animation-duration: 4.5s; }
-    .bubble:nth-child(4) { animation-delay: -4.2s; animation-duration: 5.5s; }
-    .bubble:nth-child(5) { animation-delay: -0.7s; animation-duration: 7s; }
-    .bubble:nth-child(6) { animation-delay: -2.3s; animation-duration: 5.8s; }
-
-    /* marine snow drift */
-    @keyframes snowDrift {
-      0% { transform: translateY(0) translateX(0); opacity: 0.3; }
-      100% { transform: translateY(60px) translateX(15px); opacity: 0; }
-    }
-    .marine-snow { animation: snowDrift 8s linear infinite; }
-
-    /* Caudal-fin swish. Pivots at the fin base (fill-box + right center) so the tail
-       sweeps; speeds are staggered so the school does not wag in lockstep. Composes with
-       the per-frame translate/scale the JS sets on each .fish group. */
-    @keyframes tailSwish { 0%,100% { transform: rotate(-12deg); } 50% { transform: rotate(12deg); } }
-    .fish-tail { transform-box: fill-box; transform-origin: right center; animation: tailSwish 0.55s ease-in-out infinite; }
-    .fish:nth-child(2n) .fish-tail { animation-duration: 0.66s; }
-    .fish:nth-child(3n) .fish-tail { animation-duration: 0.47s; }
-    .fish:nth-child(5n) .fish-tail { animation-duration: 0.6s; }
-
-    /* ===== INTRO OVERLAY ===== */
-    #intro-overlay {
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(120% 75% at 50% 10%, rgba(78,205,196,0.10), rgba(78,205,196,0) 58%),
-        rgba(8,18,34,0.98);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 28px; z-index: 100;
-      overflow-y: auto;
-      opacity: 1; transition: opacity 0.6s ease;
-    }
-    #intro-overlay.hidden { opacity: 0; pointer-events: none; }
-
-    /* Faded tipping-point curve sitting behind the content; gives the dead space meaning and
-       lets the tiles' glass read against something. Dialled down so text stays dominant. */
-    .intro-content { position: relative; z-index: 1; max-width: 560px; text-align: center; }
-    .intro-title {
-      font-size: 3.2rem; font-weight: 300; letter-spacing: 0.16em;
-      margin-bottom: 10px; color: var(--accent);
-      text-shadow: 0 2px 24px rgba(78,205,196,0.35);
-    }
-    .intro-subtitle { font-size: 1.15rem; color: rgba(255,255,255,0.78); margin-bottom: 20px; font-style: italic; letter-spacing: 0.2px; }
-    .intro-lead { font-size: 0.98rem; line-height: 1.6; color: rgba(255,255,255,0.74); max-width: 500px; margin: 0 auto 14px; }
-    .intro-agency { font-size: 1.05rem; line-height: 1.55; color: rgba(255,255,255,0.92); max-width: 500px; margin: 0 auto 30px; }
-    .intro-agency strong { color: var(--accent); font-weight: 600; }
-    .intro-vars { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 26px; }
-    .intro-var {
-      padding: 22px 16px 20px;
-      background: linear-gradient(180deg, #14273e 0%, #0d1c2e 100%);
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.10);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 22px rgba(0,0,0,0.35);
-      text-align: center;
-      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    }
-    .intro-var:hover { transform: translateY(-3px); border-color: rgba(78,205,196,0.3); box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 12px 28px rgba(0,0,0,0.42); }
-    .intro-var-icon {
-      font-size: 2rem; line-height: 1; margin: 0 auto 12px;
-      width: 58px; height: 58px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      background: radial-gradient(circle at 38% 32%, rgba(78,205,196,0.22), rgba(78,205,196,0.04) 70%);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 3px 8px rgba(0,0,0,0.3);
-    }
-    .intro-var h3 { font-size: 1rem; font-weight: 600; margin-bottom: 7px; letter-spacing: 0.3px; }
-    .intro-var p { font-size: 0.86rem; color: var(--text-secondary); line-height: 1.5; }
-    /* Three beats instead of a run-on hint; each stands on its own with a small teal marker. */
-    /* Three plain sentences, lightly spaced. No flex/markers; that was what tore them apart. */
-    .intro-beats { max-width: 480px; margin: 0 auto 28px; }
-    .intro-beat { font-size: 0.98rem; line-height: 1.5; color: rgba(255,255,255,0.82); margin: 0; }
-    .intro-beat + .intro-beat { margin-top: 12px; }
-    .intro-beat strong { color: var(--accent); font-weight: 600; }
-
-    #start-btn {
-      background: var(--accent); color: var(--water-deep); border: none;
-      padding: 13px 40px; font-size: 0.95rem; font-weight: 600;
-      border-radius: 28px; cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    #start-btn:hover { transform: scale(1.04); box-shadow: 0 4px 20px rgba(78,205,196,0.35); }
-    #start-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(78,205,196,0.5); }
-
-    /* ===== INFO (SCIENCE) OVERLAY ===== */
-    #info-overlay {
-      position: absolute; inset: 0;
-      background: rgba(8,18,34,0.97);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      display: flex; align-items: flex-start; justify-content: center;
-      padding: 24px; z-index: 90;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.4s ease;
-      overflow-y: auto;
-    }
-    #info-overlay.visible { opacity: 1; pointer-events: auto; }
-    #info-overlay:focus { outline: none; }
-
-    .info-content { max-width: 560px; padding: 12px 0 32px; }
-    .info-content h2 { font-size: 1.5rem; font-weight: 400; margin-bottom: 0; color: var(--accent); text-align: center; text-shadow: 0 2px 18px rgba(78,205,196,0.35); }
-    /* Short teal accent under the title, echoing the intro title treatment. */
-    .info-rule { height: 2px; width: 54px; margin: 12px auto 24px; background: linear-gradient(90deg, rgba(78,205,196,0), var(--accent), rgba(78,205,196,0)); }
-    /* Sections read as a calm list: a round icon chip on the left (same chip as the intro
-       variables), heading + text on the right, with hairline dividers between topics. This
-       breaks up the wall of text without chopping it into hard cards. */
-    .info-section { display: flex; gap: 15px; align-items: flex-start; padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.08); }
-    .sec-chip {
-      flex-shrink: 0; width: 46px; height: 46px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 1.4rem; line-height: 1;
-      background: radial-gradient(circle at 38% 32%, rgba(78,205,196,0.22), rgba(78,205,196,0.04) 70%);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 3px 8px rgba(0,0,0,0.3);
-    }
-    .sec-body { flex: 1; min-width: 0; }
-    .info-section h3 { font-size: 1.02rem; font-weight: 600; margin: 3px 0 8px; }
-    .info-section p { font-size: 0.88rem; line-height: 1.6; color: var(--text-secondary); }
-    .info-section p strong { color: var(--text-primary); font-weight: 500; }
-
-    .info-try {
-      margin-top: 24px; padding: 16px;
-      background: rgba(78,205,196,0.08); border-radius: 12px;
-      border: 1px solid rgba(78,205,196,0.15);
-    }
-    .info-try h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: var(--accent); }
-    .info-try p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.55; }
-    .info-try p + p { margin-top: 12px; }
-    .info-try p strong { color: var(--accent); font-weight: 600; }
-
-    /* Bridge from the in-sim panel to the standalone model-notes page. Made deliberately
-       visible: for learners it is optional, but the intended portfolio audience (scientists,
-       institutes) should not miss the deeper, inspectable layer. */
-    .info-fullnotes {
-      margin: 28px 0 4px; padding: 16px 20px; text-align: center;
-      background: rgba(78,205,196,0.08); border: 1px solid rgba(78,205,196,0.30); border-radius: 12px;
-      font-size: 0.95rem; color: var(--text-secondary); line-height: 1.55;
-    }
-    .info-fullnotes strong { color: var(--accent); font-weight: 600; }
-    .info-fullnotes a { color: var(--accent); font-weight: 600; text-decoration: none; border-bottom: 1px solid rgba(78,205,196,0.55); }
-    .info-fullnotes a:hover { border-bottom-color: var(--accent); }
-
-    #close-info-btn {
-      display: block; margin: 24px auto 0;
-      background: transparent; border: 1px solid var(--accent); color: var(--accent);
-      padding: 9px 28px; font-size: 0.9rem; border-radius: 20px;
-      cursor: pointer; transition: background 0.2s;
-    }
-    #close-info-btn:hover { background: rgba(78,205,196,0.12); }
-
-    /* Progressive disclosure: short blurb stays visible, "More" expands the deeper layer. */
-    .info-more { margin: 8px 0 4px; }
-    .info-more > summary {
-      cursor: pointer; list-style: none; outline: none;
-      font-size: 0.8rem; color: var(--accent); font-weight: 500;
-      display: inline-flex; align-items: center; gap: 6px; padding: 3px 0;
-    }
-    .info-more > summary::-webkit-details-marker { display: none; }
-    .info-more > summary::before {
-      content: '▸'; display: inline-block; transition: transform 0.2s; font-size: 0.7rem;
-    }
-    .info-more[open] > summary::before { transform: rotate(90deg); }
-    .info-more > p { font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary); margin: 8px 0 0; padding-left: 2px; }
-    .info-more > p strong { color: var(--text-primary); font-weight: 500; }
-
-    /* "Happening now" real-world callout — warm tint to set it apart from the teal try-this box. */
-    .info-now {
-      margin-top: 22px; padding: 16px;
-      background: rgba(255,150,90,0.08); border-radius: 12px;
-      border: 1px solid rgba(255,150,90,0.2);
-    }
-    .info-now h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: #ff9b5a; }
-    .info-now p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.55; }
-    .info-now p strong { color: var(--text-primary); font-weight: 500; }
-
-    .info-intro { font-size: 0.9rem; line-height: 1.65; color: var(--text-secondary); margin-bottom: 22px; }
-    .info-intro strong { color: var(--text-primary); font-weight: 500; }
-
-    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 700px) {
-      #controls { padding: 6px 10px; gap: 6px; flex-wrap: wrap; }
-      .sliders-wrap { gap: 10px; order: 10; flex-basis: 100%; }
-      .sld-group { min-width: 0; }
-      .intro-vars { grid-template-columns: 1fr; gap: 8px; }
-      .intro-title { font-size: 2.2rem; }
-      .intro-subtitle { font-size: 1rem; }
-      #hud-narration { max-width: 280px; font-size: 13px; }
-      #hud-badge { font-size: 13px !important; padding: 6px 16px !important; }
-    }
-    /* DEBUG OVERLAY — temporär, vor Release entfernen */
-    #debug-overlay {
-      position: fixed; top: 12px; left: 12px; z-index: 9999;
-      font: 12px/1.7 monospace; color: #fff; background: rgba(0,0,0,0.55);
-      border: 1px solid rgba(255,255,100,0.4); border-radius: 6px;
-      padding: 8px 12px; pointer-events: none; white-space: pre;
-    }
-  </style>
+  /* LIGHTBOX: Klick zum Vergrößern */
+  .media:not(.cz-sobh) .slide img{cursor:zoom-in}
+  .zoom-hint{position:absolute;top:12px;left:14px;z-index:3;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#fff;background:rgba(15,44,51,.5);backdrop-filter:blur(4px);padding:4px 11px;border-radius:100px;opacity:0;transition:opacity .2s ease;pointer-events:none}
+  .zoom-hint svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.2}
+  .media:hover .zoom-hint,.media:focus-within .zoom-hint{opacity:1}
+  .lightbox{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(8,20,24,.93);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s ease;padding:28px;cursor:zoom-out}
+  .lightbox.open{opacity:1;visibility:visible}
+  .lightbox img{max-width:94vw;max-height:92vh;width:auto;height:auto;border-radius:10px;box-shadow:0 30px 80px rgba(0,0,0,.55);transform:scale(.96);transition:transform .25s ease;cursor:default}
+  .lightbox.open img{transform:scale(1)}
+  .lb-close{position:absolute;top:18px;right:20px;width:46px;height:46px;border-radius:50%;border:none;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s ease;z-index:2}
+  .lb-close:hover{background:rgba(255,255,255,.28)}
+  .lb-close svg{width:22px;height:22px;stroke:#fff;stroke-width:2.4;fill:none}
+  @media(prefers-reduced-motion:reduce){.lightbox,.lightbox img{transition:none}}
+</style>
 </head>
 <body>
-  <!-- DEBUG OVERLAY — temporär, vor Release entfernen -->
-  <div id="debug-overlay"></div>
-  <h1 class="sr-only">Threshold Reef: Interactive Coral Reef Ecosystem Simulator</h1>
 
-  <div id="app">
-    <div id="controls" role="region" aria-label="Ecosystem controls">
-      <button id="reset-btn" class="ctrl-btn" aria-label="Reset simulation" title="Reset"><span class="ico">↺</span> Reset</button>
+<nav>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span> Tobias Schneider</div>
+    <div class="nav-links">
+      <a href="#saeulen"><span class="de">Ansatz</span><span class="en">Approach</span></a>
+      <a href="#stuecke"><span class="de">Arbeiten</span><span class="en">Work</span></a>
+      <a href="#kontakt"><span class="de">Kontakt</span><span class="en">Contact</span></a>
+      <span class="lang lang-wrap"><button type="button" data-l="de" class="on">DE</button><button type="button" data-l="en">EN</button></span>
+    </div>
+  </div>
+</nav>
 
-      <div class="sliders-wrap">
-        <div class="sld-group">
-          <span class="sld-icon">🌡️</span>
-          <div class="sld-track">
-            <div class="sld-name">Temperature</div>
-            <input type="range" id="temp-slider" min="0" max="100" value="15" aria-label="Ocean temperature">
-            <div class="sld-ends"><span>Normal</span><span>Heat Wave</span></div>
-          </div>
-        </div>
-        <div class="sld-group">
-          <span class="sld-icon">🎣</span>
-          <div class="sld-track">
-            <div class="sld-name">Fishing</div>
-            <input type="range" id="fish-slider" min="0" max="100" value="15" aria-label="Fishing pressure">
-            <div class="sld-ends"><span>Protected</span><span>Overfished</span></div>
-          </div>
-        </div>
-        <div class="sld-group">
-          <span class="sld-icon">🏭</span>
-          <div class="sld-track">
-            <div class="sld-name">Pollution</div>
-            <input type="range" id="nutrient-slider" min="0" max="100" value="10" aria-label="Nutrient pollution">
-            <div class="sld-ends"><span>Pristine</span><span>Heavy</span></div>
-          </div>
-        </div>
+<header class="hero">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="wrap">
+    <div class="hero-text">
+      <h1 class="de">Ich baue Lernwelten, in denen man komplexe lebende Systeme nicht auswendig lernt, sondern <em>erlebt</em>, durch Entscheidungen mit echten Konsequenzen.</h1>
+      <h1 class="en">I build learning worlds where you don't memorize complex living systems, you <em>experience</em> them, through decisions with real consequences.</h1>
+      <p class="sub de">Promovierter Biologe &amp; Learning Experience Designer. Vom Korallenriff in der Krise bis zur Mondbasis als Organismus. Wissenschaftliche Genauigkeit ist mein Ausgangspunkt, nicht mein Faktencheck am Schluss. Und ich baue end-to-end: Konzept, Didaktik, Drehbuch, Bild und Code.</p>
+      <p class="sub en">Biologist (PhD) &amp; Learning Experience Designer. From a coral reef in crisis to a moon base as a living organism. Scientific accuracy is my starting point, not a fact-check at the end. And I build end to end: concept, instructional design, script, visuals, and code.</p>
+      <div class="hero-cta">
+        <a href="#kontakt" class="btn"><span class="de">Lass uns etwas bauen</span><span class="en">Let's build something</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#stuecke" class="btn btn-ghost"><span class="de">Arbeiten ansehen</span><span class="en">See the work</span></a>
       </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="hero-art">
+      <img src="assets/hero.jpg" alt="Drei bewohnte Lernwelten: ein Korallenriff, eine Mondbasis und ein Wald, verbunden durch zarte Lichtspuren." fetchpriority="high">
+    </div>
+  </div>
+</header>
 
-      <button id="info-btn" class="ctrl-btn" aria-label="The science behind it" title="The Science Behind It"><span class="ico">🔬</span> The Science</button>
+<svg class="wave" viewBox="0 0 1440 70" preserveAspectRatio="none"><path fill="#ffffff" d="M0,40 C360,80 720,0 1080,30 C1260,45 1380,55 1440,40 L1440,70 L0,70 Z"/></svg>
+
+<section class="sect" id="saeulen" style="background:#fff;padding-top:30px">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <span class="eyebrow de">Mein Ansatz</span>
+      <span class="eyebrow en">My approach</span>
+      <h2 class="de">Drei Überzeugungen tragen jedes Stück.</h2>
+      <h2 class="en">Three convictions run through every piece.</h2>
+    </div>
+    <div class="pillars">
+      <div class="pillar reveal">
+        <span class="pnum">01</span>
+        <div class="picon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="6" r="2.4"/><circle cx="19" cy="6" r="2.4"/><circle cx="12" cy="18" r="2.4"/><path d="M7 7.5 10.5 16M17 7.5 13.5 16M6.5 6h11"/></svg></div>
+        <h3 class="de">Systemdenken</h3>
+        <h3 class="en">Systems thinking</h3>
+        <p class="de">Ich erzähle alles als zusammenspielende Teile, in denen das Versagen eines Teils das Ganze gefährdet: Riff, Mondbasis-Organe, Ökosystem-Netz. Mein Biologen-Hirn ist ein Systemhirn.</p>
+        <p class="en">I tell everything as interacting parts, where the failure of one part endangers the whole: the reef, the organs of a moon base, the web of an ecosystem. My biologist's brain is a systems brain.</p>
+      </div>
+      <div class="pillar reveal">
+        <span class="pnum">02</span>
+        <div class="picon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg></div>
+        <h3 class="de">Vom Vermitteln zum Anwenden</h3>
+        <h3 class="en">From teaching to doing</h3>
+        <p class="de">Ich baue Orte zum Anwenden, nicht zum Auswendiglernen: einen Flugsimulator fürs Riff-Management, eine verzweigte Verhandlung, einen Detektivfall, in dem man aufspürt, was nicht in ein Ökosystem gehört. Man wendet Wissen an, statt es nur abzurufen, und übt so Urteilsvermögen.</p>
+        <p class="en">I build places to apply knowledge, not just to memorize it: a flight simulator for reef management, a branching negotiation, a detective case where you spot what doesn't belong in an ecosystem. You apply knowledge instead of merely recalling it, and that is how you train judgment.</p>
+      </div>
+      <div class="pillar reveal">
+        <span class="pnum">03</span>
+        <div class="picon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6M10 3v6.5L5.5 18a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L14 9.5V3"/><path d="M8 15h8"/></svg></div>
+        <h3 class="de">Wissenschaftliche Strenge als Fundament</h3>
+        <h3 class="en">Scientific rigor as the foundation</h3>
+        <p class="de">Ich bin promovierter Biologe. Genauigkeit ist mein Ausgangspunkt, nicht mein Faktencheck am Schluss. Korrektheit ist eingebaut: von der fachlichen Prüfung jeder Aussage bis zur sauberen Trennung von gesichertem Wissen, Extrapolation und Spekulation im Mondbasis-Video.</p>
+        <p class="en">I am a biologist (PhD). Accuracy is my starting point, not a fact-check at the end. Correctness is built in: from checking every claim against the science to the clean separation of established knowledge, extrapolation, and speculation in the moon base video.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <span class="eyebrow de">Der KI-Vorteil</span>
+    <span class="eyebrow en">The AI advantage</span>
+    <blockquote class="de">Ich nutze KI als kontrollierte Produktionspipeline, gezielt gesteuert, nicht als Spielzeug. Der Doppelvorteil: <strong>Tempo durch Orchestrierung, Vertrauen durch wissenschaftliche Kontrolle.</strong></blockquote>
+    <blockquote class="en">I use AI as a controlled production pipeline, precisely directed, not as a toy. The double advantage: <strong>speed through orchestration, trust through scientific control.</strong></blockquote>
+  </div>
+</section>
+
+<section class="sect" id="stuecke">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <span class="eyebrow de">Ausgewählte Arbeiten</span>
+      <span class="eyebrow en">Selected work</span>
+      <h2 class="de">Fünf Stücke, ein roter Faden: lebende Systeme begreifbar machen.</h2>
+      <h2 class="en">Five pieces, one common thread: making living systems tangible.</h2>
     </div>
 
-    <div id="reef-container">
-
-      <div id="reef-hud" aria-live="polite" role="status">
-        <div id="hud-badge" class="healthy">🌊 Healthy</div>
-        <div id="hud-narration"></div>
+    <div class="piece reveal">
+      <div class="p-text">
+        <div class="p-eyebrow"><span class="pn">01</span> <span class="de">Interaktiver eLearning-Kurs</span><span class="en">Interactive eLearning course</span> <span class="p-lang">EN</span></div>
+        <h3>Coral Reefs on the Brink</h3>
+        <div class="p-row"><span class="lbl"><span class="de">Was</span><span class="en">What</span></span><p class="de">Szenariobasierter eLearning-Kurs in vier Modulen. Man versteht ein Korallenriff als System, lernt seine Warnsignale zu lesen und trifft als „reef manager&#8220; unter einer Code-Red-Hitzewelle echte Triage-Entscheidungen. <strong>Flugsimulator statt Lehrbuch.</strong></p><p class="en">A scenario-based eLearning course in four modules. You come to understand a coral reef as a system, learn to read its warning signs, and make real triage decisions as a “reef manager” during a Code Red heat wave. <strong>A flight simulator, not a textbook.</strong></p></div>
+        <div class="p-row"><span class="lbl"><span class="de">Warum</span><span class="en">Why</span></span><p class="de">Mein vollständigster Beweis: ein kompletter 4-Modul-Kurs, allein konzipiert und gebaut, von der Riff-Biologie über das Lesen der Hitzestress-Diagnostik bis zur Entscheidung unter Druck. Dramatischer Höhepunkt ist das „Decision Lab&#8220;: Unter einer Code-Red-Hitzewelle trifft man Triage-Entscheidungen, sieht ihre Folgen und übt Urteilsvermögen unter Unsicherheit, statt Fakten abzurufen. Der Bogen führt am Ende ins Feld, bis zur Berufsorientierung, auch für Hochschulen zur Nachwuchsgewinnung.</p><p class="en">My most complete proof of work: a full four-module course, conceived and built single-handedly, from reef biology through reading heat-stress diagnostics to deciding under pressure. Its dramatic high point is the “Decision Lab”: under a Code Red heat wave you make triage decisions, see their consequences, and train judgment under uncertainty instead of recalling facts. The arc leads into the field at the end, all the way to career orientation, useful for universities recruiting the next generation too.</p></div>
+        <div class="p-row"><span class="lbl"><span class="de">Für wen</span><span class="en">Who for</span></span><p class="de">Angehende Meereswissenschaftler:innen, Oberstufe bis 1. Studienjahr · Englisch.</p><p class="en">Aspiring marine scientists, upper secondary to first-year university · English.</p></div>
+        <div class="p-links"><a href="https://share.eu.articulate.com/8k5jLmJxQe_BkXPFtjGIC" target="_blank" rel="noopener" class="link-coral"><span class="de">Kurs ansehen</span><span class="en">View the course</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a href="assets/CoralDesignDossier.pdf" target="_blank" rel="noopener" class="link-muted"><span class="de">Mehr erfahren</span><span class="en">Learn more</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
       </div>
-
-      <svg id="reef-scene" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-        <defs>
-          <linearGradient id="gWater" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#2a94b5"/>
-            <stop offset="25%" stop-color="#18658a"/>
-            <stop offset="55%" stop-color="#0c3560"/>
-            <stop offset="100%" stop-color="#091524"/>
-          </linearGradient>
-          <linearGradient id="gRay" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="rgba(255,255,220,0.22)"/>
-            <stop offset="100%" stop-color="rgba(255,255,220,0)"/>
-          </linearGradient>
-          <linearGradient id="gSand" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#9a8b73"/>
-            <stop offset="100%" stop-color="#6b5d4a"/>
-          </linearGradient>
-          <filter id="fAlgae" x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur stdDeviation="6" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-          <!-- Soft algae wash: pure blur so the green veils over the colony with
-               feathered edges instead of reading as a hard-edged blob -->
-          <filter id="fAlgaeSoft" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="4.5"/>
-          </filter>
-          <!-- Eutrophication haze: nutrient pollution turns the water murky green near the lit
-               surface, browner with depth. Opacity is driven by the (eased) nutrient level. -->
-          <linearGradient id="gMurk" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%"   stop-color="#5f7d39"/>
-            <stop offset="55%"  stop-color="#3f5a2e"/>
-            <stop offset="100%" stop-color="#293a22"/>
-          </linearGradient>
-          <!-- Reef limestone substrate: a top-lit framework the corals grow out of -->
-          <linearGradient id="gReefRock" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%"   stop-color="#9c8468"/>
-            <stop offset="35%"  stop-color="#6c5a47"/>
-            <stop offset="100%" stop-color="#2c261f"/>
-          </linearGradient>
-          <!-- Rounded rock heads: radial volume lit from the upper-left -->
-          <radialGradient id="gReefMound" cx="40%" cy="30%" r="78%">
-            <stop offset="0%"   stop-color="#ab9374"/>
-            <stop offset="55%"  stop-color="#6a5946"/>
-            <stop offset="100%" stop-color="#352d24"/>
-          </radialGradient>
-          <!-- Distant reef ridge: desaturated and bluish so it recedes into the water -->
-          <linearGradient id="gReefBack" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%"   stop-color="#33586a"/>
-            <stop offset="100%" stop-color="#15324b"/>
-          </linearGradient>
-          <!-- Depth blur for the distant ridge -->
-          <filter id="fDepth" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="3.5"/>
-          </filter>
-        </defs>
-
-        <rect width="800" height="500" fill="url(#gWater)"/>
-
-        <g class="light-rays">
-          <polygon class="light-ray" points="90,0 155,0 210,210 110,210" fill="url(#gRay)"/>
-          <polygon class="light-ray" points="270,0 350,0 395,225 250,225" fill="url(#gRay)"/>
-          <polygon class="light-ray" points="470,0 540,0 575,190 435,190" fill="url(#gRay)"/>
-          <polygon class="light-ray" points="640,0 710,0 695,205 595,205" fill="url(#gRay)"/>
-        </g>
-
-        <g id="marine-snow" opacity="0.25">
-          <circle class="marine-snow" cx="120" cy="80" r="1" fill="#fff" style="animation-delay:-1s"/>
-          <circle class="marine-snow" cx="340" cy="50" r="1.2" fill="#fff" style="animation-delay:-3s"/>
-          <circle class="marine-snow" cx="560" cy="100" r="0.8" fill="#fff" style="animation-delay:-5s"/>
-          <circle class="marine-snow" cx="700" cy="60" r="1" fill="#fff" style="animation-delay:-7s"/>
-          <circle class="marine-snow" cx="200" cy="130" r="0.9" fill="#fff" style="animation-delay:-2s;animation-duration:10s"/>
-          <circle class="marine-snow" cx="450" cy="70" r="1.1" fill="#fff" style="animation-delay:-4s;animation-duration:9s"/>
-        </g>
-
-        <g id="bubbles">
-          <circle class="bubble" cx="150" cy="400" r="2.5" fill="rgba(255,255,255,0.35)"/>
-          <circle class="bubble" cx="380" cy="390" r="3.5" fill="rgba(255,255,255,0.3)"/>
-          <circle class="bubble" cx="550" cy="410" r="2" fill="rgba(255,255,255,0.35)"/>
-          <circle class="bubble" cx="680" cy="395" r="3" fill="rgba(255,255,255,0.3)"/>
-          <circle class="bubble" cx="260" cy="420" r="2" fill="rgba(255,255,255,0.25)"/>
-          <circle class="bubble" cx="470" cy="380" r="1.8" fill="rgba(255,255,255,0.3)"/>
-        </g>
-
-        <g id="fish-school">
-          <g class="fish" id="fish-1" data-base-x="100" data-base-y="120" data-speed="0.8" data-amp="15">
-            <path class="fish-tail" d="M-15.8,0 C-25.3,-5.9 -29.7,-10.5 -35.2,-14.9 C-28.2,-4.5 -28.2,4.5 -35.2,14.9 C-29.7,10.5 -25.3,5.9 -15.8,0 Z" fill="#e8c52a"/>
-            <ellipse rx="22" ry="13" fill="#f4d03f"/>
-            <ellipse cx="1.1" cy="5.9" rx="15.8" ry="6.5" fill="rgba(255,255,255,0.22)"/>
-            <path d="M-7,-9.4 Q-0.4,-20.2 7,-9.1 Z" fill="#e0b820" opacity="0.85"/>
-            <path d="M2.6,2.9 Q11,12.3 11,2.3 Z" fill="#e0b820" opacity="0.55"/>
-            <circle cx="12.8" cy="-3.6" r="4.4" fill="#fff" opacity="0.92"/>
-            <circle cx="13.4" cy="-3.6" r="2.6" fill="#20222b"/>
-            <circle cx="11.7" cy="-4.9" r="1" fill="#fff"/>
-            <path d="M20.2,1.6 Q22.4,3.4 18.5,4.2" stroke="rgba(0,0,0,0.28)" stroke-width="1" fill="none" stroke-linecap="round"/>
-          </g>
-          <g class="fish" id="fish-2" data-base-x="300" data-base-y="80" data-speed="1.1" data-amp="12">
-            <path class="fish-tail" d="M-14.4,0 C-23,-5.4 -27,-9.7 -32,-13.8 C-25.6,-4.2 -25.6,4.2 -32,13.8 C-27,9.7 -23,5.4 -14.4,0 Z" fill="#4a9ad0"/>
-            <ellipse rx="20" ry="12" fill="#5dade2"/>
-            <ellipse cx="1" cy="5.4" rx="14.4" ry="6" fill="rgba(255,255,255,0.22)"/>
-            <path d="M-6.4,-8.6 Q-0.4,-18.6 6.4,-8.4 Z" fill="#3f8fc4" opacity="0.85"/>
-            <path d="M2.4,2.6 Q10,11.4 10,2.2 Z" fill="#3f8fc4" opacity="0.55"/>
-            <circle cx="11.6" cy="-3.4" r="4.1" fill="#fff" opacity="0.92"/>
-            <circle cx="12.2" cy="-3.4" r="2.4" fill="#20222b"/>
-            <circle cx="10.6" cy="-4.6" r="1" fill="#fff"/>
-            <path d="M18.4,1.4 Q20.4,3.1 16.8,3.8" stroke="rgba(0,0,0,0.28)" stroke-width="1" fill="none" stroke-linecap="round"/>
-          </g>
-          <g class="fish" id="fish-3" data-base-x="500" data-base-y="150" data-speed="0.7" data-amp="18">
-            <path class="fish-tail" d="M-12.2,0 C-19.5,-5 -23,-8.9 -27.2,-12.6 C-21.8,-3.8 -21.8,3.8 -27.2,12.6 C-23,8.9 -19.5,5 -12.2,0 Z" fill="#cc6a18"/>
-            <ellipse rx="17" ry="11" fill="#e67e22"/>
-            <ellipse cx="0.9" cy="5" rx="12.2" ry="5.5" fill="rgba(255,255,255,0.22)"/>
-            <ellipse cx="7.1" cy="0" rx="2.2" ry="10.1" fill="#fff" opacity="0.85"/>
-            <ellipse cx="-3.1" cy="0" rx="2.2" ry="10.4" fill="#fff" opacity="0.85"/>
-            <path d="M-5.4,-7.9 Q-0.3,-17.1 5.4,-7.7 Z" fill="#cc6a18" opacity="0.85"/>
-            <path d="M2,2.4 Q8.5,10.4 8.5,2 Z" fill="#cc6a18" opacity="0.55"/>
-            <circle cx="9.9" cy="-3.1" r="3.7" fill="#fff" opacity="0.92"/>
-            <circle cx="10.4" cy="-3.1" r="2.2" fill="#20222b"/>
-            <circle cx="9" cy="-4.2" r="0.9" fill="#fff"/>
-            <path d="M15.6,1.3 Q17.3,2.9 14.3,3.5" stroke="rgba(0,0,0,0.28)" stroke-width="1" fill="none" stroke-linecap="round"/>
-          </g>
-          <g class="fish" id="fish-4" data-base-x="200" data-base-y="175" data-speed="1.3" data-amp="10">
-            <path class="fish-tail" d="M-8.6,0 C-13.8,-3.6 -16.2,-6.4 -19.2,-9.2 C-15.4,-2.8 -15.4,2.8 -19.2,9.2 C-16.2,6.4 -13.8,3.6 -8.6,0 Z" fill="#e0c030"/>
-            <ellipse rx="12" ry="8" fill="#f7dc6f"/>
-            <ellipse cx="0.6" cy="3.6" rx="8.6" ry="4" fill="rgba(255,255,255,0.22)"/>
-            <path d="M-3.8,-5.8 Q-0.2,-12.4 3.8,-5.6 Z" fill="#e0c030" opacity="0.85"/>
-            <path d="M1.4,1.8 Q6,7.6 6,1.4 Z" fill="#e0c030" opacity="0.55"/>
-            <circle cx="7" cy="-2.2" r="2.7" fill="#fff" opacity="0.92"/>
-            <circle cx="7.3" cy="-2.2" r="1.6" fill="#20222b"/>
-            <circle cx="6.3" cy="-3" r="0.8" fill="#fff"/>
-          </g>
-          <g class="fish" id="fish-5" data-base-x="650" data-base-y="100" data-speed="0.9" data-amp="14">
-            <path class="fish-tail" d="M-10.8,0 C-17.2,-4 -20.2,-7.2 -24,-10.3 C-19.2,-3.1 -19.2,3.1 -24,10.3 C-20.2,7.2 -17.2,4 -10.8,0 Z" fill="#3aab96"/>
-            <ellipse rx="15" ry="9" fill="#48c9b0"/>
-            <ellipse cx="0.8" cy="4" rx="10.8" ry="4.5" fill="rgba(255,255,255,0.22)"/>
-            <path d="M-4.8,-6.5 Q-0.3,-14 4.8,-6.3 Z" fill="#3aab96" opacity="0.85"/>
-            <path d="M1.8,2 Q7.5,8.5 7.5,1.6 Z" fill="#3aab96" opacity="0.55"/>
-            <circle cx="8.7" cy="-2.5" r="3.1" fill="#fff" opacity="0.92"/>
-            <circle cx="9.1" cy="-2.5" r="1.8" fill="#20222b"/>
-            <circle cx="8" cy="-3.4" r="0.8" fill="#fff"/>
-            <path d="M13.8,1.1 Q15.3,2.3 12.6,2.9" stroke="rgba(0,0,0,0.28)" stroke-width="1" fill="none" stroke-linecap="round"/>
-          </g>
-          <g class="fish" id="fish-6" data-base-x="420" data-base-y="195" data-speed="1.0" data-amp="16">
-            <path class="fish-tail" d="M-10.1,0 C-16.1,-4 -18.9,-7.2 -22.4,-10.3 C-17.9,-3.1 -17.9,3.1 -22.4,10.3 C-18.9,7.2 -16.1,4 -10.1,0 Z" fill="#905aad"/>
-            <ellipse rx="14" ry="9" fill="#a569bd"/>
-            <ellipse cx="0.7" cy="4" rx="10.1" ry="4.5" fill="rgba(255,255,255,0.22)"/>
-            <path d="M-4.5,-6.5 Q-0.3,-14 4.5,-6.3 Z" fill="#905aad" opacity="0.85"/>
-            <path d="M1.7,2 Q7,8.5 7,1.6 Z" fill="#905aad" opacity="0.55"/>
-            <circle cx="8.1" cy="-2.5" r="3.1" fill="#fff" opacity="0.92"/>
-            <circle cx="8.5" cy="-2.5" r="1.8" fill="#20222b"/>
-            <circle cx="7.4" cy="-3.4" r="0.8" fill="#fff"/>
-            <path d="M12.9,1.1 Q14.3,2.3 11.8,2.9" stroke="rgba(0,0,0,0.28)" stroke-width="1" fill="none" stroke-linecap="round"/>
-          </g>
-          <g class="fish" id="fish-7" data-base-x="580" data-base-y="165" data-speed="1.2" data-amp="11">
-            <path class="fish-tail" d="M-7.9,0 C-12.6,-3.1 -14.9,-5.6 -17.6,-8 C-14.1,-2.4 -14.1,2.4 -17.6,8 C-14.9,5.6 -12.6,3.1 -7.9,0 Z" fill="#6dafda"/>
-            <ellipse rx="11" ry="7" fill="#85c1e9"/>
-            <ellipse cx="0.6" cy="3.1" rx="7.9" ry="3.5" fill="rgba(255,255,255,0.22)"/>
-            <path d="M-3.5,-5 Q-0.2,-10.8 3.5,-4.9 Z" fill="#6dafda" opacity="0.85"/>
-            <path d="M1.3,1.5 Q5.5,6.6 5.5,1.3 Z" fill="#6dafda" opacity="0.55"/>
-            <circle cx="6.4" cy="-2" r="2.4" fill="#fff" opacity="0.92"/>
-            <circle cx="6.7" cy="-2" r="1.4" fill="#20222b"/>
-            <circle cx="5.8" cy="-2.7" r="0.8" fill="#fff"/>
-          </g>
-          <g class="fish" id="fish-8" data-base-x="150" data-base-y="215" data-speed="0.85" data-amp="13">
-            <path class="fish-tail" d="M-9.4,0 C-14.9,-3.6 -17.6,-6.4 -20.8,-9.2 C-16.6,-2.8 -16.6,2.8 -20.8,9.2 C-17.6,6.4 -14.9,3.6 -9.4,0 Z" fill="#d9982e"/>
-            <ellipse rx="13" ry="8" fill="#f5b041"/>
-            <ellipse cx="0.7" cy="3.6" rx="9.4" ry="4" fill="rgba(255,255,255,0.22)"/>
-            <path d="M-4.2,-5.8 Q-0.3,-12.4 4.2,-5.6 Z" fill="#d9982e" opacity="0.85"/>
-            <path d="M1.6,1.8 Q6.5,7.6 6.5,1.4 Z" fill="#d9982e" opacity="0.55"/>
-            <circle cx="7.5" cy="-2.2" r="2.7" fill="#fff" opacity="0.92"/>
-            <circle cx="7.9" cy="-2.2" r="1.6" fill="#20222b"/>
-            <circle cx="6.9" cy="-3" r="0.8" fill="#fff"/>
-            <path d="M12,1 Q13.3,2.1 10.9,2.6" stroke="rgba(0,0,0,0.28)" stroke-width="1" fill="none" stroke-linecap="round"/>
-          </g>
-          <g class="fish" id="fish-9" data-base-x="350" data-base-y="140" data-speed="1.15" data-amp="9">
-            <path class="fish-tail" d="M-7.2,0 C-11.5,-2.7 -13.5,-4.8 -16,-6.9 C-12.8,-2.1 -12.8,2.1 -16,6.9 C-13.5,4.8 -11.5,2.7 -7.2,0 Z" fill="#42b876"/>
-            <ellipse rx="10" ry="6" fill="#58d68d"/>
-            <ellipse cx="0.5" cy="2.7" rx="7.2" ry="3" fill="rgba(255,255,255,0.22)"/>
-            <path d="M-3.2,-4.3 Q-0.2,-9.3 3.2,-4.2 Z" fill="#42b876" opacity="0.85"/>
-            <path d="M1.2,1.3 Q5,5.7 5,1.1 Z" fill="#42b876" opacity="0.55"/>
-            <circle cx="5.8" cy="-1.7" r="2.2" fill="#fff" opacity="0.92"/>
-            <circle cx="6.1" cy="-1.7" r="1.4" fill="#20222b"/>
-            <circle cx="5.3" cy="-2.3" r="0.8" fill="#fff"/>
-          </g>
-          <g class="fish" id="fish-10" data-base-x="720" data-base-y="190" data-speed="0.95" data-amp="14">
-            <path class="fish-tail" d="M-11.5,0 C-18.4,-4 -21.6,-7.2 -25.6,-10.3 C-20.5,-3.1 -20.5,3.1 -25.6,10.3 C-21.6,7.2 -18.4,4 -11.5,0 Z" fill="#c5574e"/>
-            <ellipse rx="16" ry="9" fill="#ec7063"/>
-            <ellipse cx="0.8" cy="4" rx="11.5" ry="4.5" fill="rgba(255,255,255,0.22)"/>
-            <path d="M-5.1,-6.5 Q-0.3,-14 5.1,-6.3 Z" fill="#c5574e" opacity="0.85"/>
-            <path d="M1.9,2 Q8,8.5 8,1.6 Z" fill="#c5574e" opacity="0.55"/>
-            <circle cx="9.3" cy="-2.5" r="3.1" fill="#fff" opacity="0.92"/>
-            <circle cx="9.8" cy="-2.5" r="1.8" fill="#20222b"/>
-            <circle cx="8.6" cy="-3.4" r="0.8" fill="#fff"/>
-            <path d="M14.7,1.1 Q16.3,2.3 13.4,2.9" stroke="rgba(0,0,0,0.28)" stroke-width="1" fill="none" stroke-linecap="round"/>
-          </g>
-        </g>
-
-        <!-- ===== REEF SUBSTRATE ===== -->
-        <!-- A layered limestone reef framework the corals grow out of, replacing the old
-             flat sand basin. Three depth planes (distant ridge -> main reef -> front rubble)
-             plus a socket under each colony, so corals read as rooted in rock, not floating
-             on sand. Pure decoration: nothing here is read by the model. -->
-
-        <!-- Distant reef ridge: dim, blurred and bluish so it recedes into the water haze
-             and hints that the reef continues into the distance. -->
-        <g id="reef-back" filter="url(#fDepth)" opacity="0.5">
-          <path d="M0,432 C60,396 120,382 182,396 C232,408 272,376 332,388
-                   C402,402 452,372 520,384 C590,396 642,378 710,390
-                   C760,400 790,408 800,404 L800,472 L0,472 Z" fill="url(#gReefBack)"/>
-          <ellipse cx="250" cy="382" rx="34" ry="24" fill="url(#gReefBack)"/>
-          <ellipse cx="560" cy="376" rx="40" ry="28" fill="url(#gReefBack)"/>
-        </g>
-
-        <!-- Main reef rock: a rolling, lit-from-above limestone mass. Crests rise under the
-             coral clusters so each colony sits on a high point of the reef. -->
-        <path d="M0,442 C40,420 90,408 130,418 C172,430 196,420 240,424
-                 C288,430 320,410 362,420 C432,432 478,418 540,426
-                 C592,430 618,410 662,420 C712,430 748,424 800,430
-                 L800,500 L0,500 Z" fill="url(#gReefRock)"/>
-
-        <!-- Sunlit rim catching the light along the reef crest -->
-        <path d="M0,442 C40,420 90,408 130,418 C172,430 196,420 240,424
-                 C288,430 320,410 362,420 C432,432 478,418 540,426
-                 C592,430 618,410 662,420 C712,430 748,424 800,430"
-              fill="none" stroke="#b6a07e" stroke-width="2" opacity="0.4"/>
-
-        <!-- Rounded rock heads (limestone mounds) for bumpy 3D volume -->
-        <ellipse cx="92"  cy="432" rx="54" ry="28" fill="url(#gReefMound)"/>
-        <ellipse cx="318" cy="426" rx="58" ry="32" fill="url(#gReefMound)"/>
-        <ellipse cx="620" cy="430" rx="54" ry="28" fill="url(#gReefMound)"/>
-        <ellipse cx="478" cy="448" rx="86" ry="26" fill="url(#gReefMound)" opacity="0.92"/>
-        <ellipse cx="195" cy="446" rx="60" ry="22" fill="url(#gReefMound)" opacity="0.9"/>
-        <ellipse cx="748" cy="450" rx="50" ry="20" fill="url(#gReefMound)"/>
-        <ellipse cx="400" cy="452" rx="46" ry="18" fill="url(#gReefMound)" opacity="0.85"/>
-        <ellipse cx="232" cy="450" rx="40" ry="18" fill="url(#gReefMound)" opacity="0.8"/>
-
-        <!-- Dark crevices nestled between the mounds -->
-        <ellipse cx="166" cy="452" rx="26" ry="7" fill="#1c1812" opacity="0.4"/>
-        <ellipse cx="412" cy="456" rx="30" ry="8" fill="#1c1812" opacity="0.4"/>
-        <ellipse cx="690" cy="454" rx="26" ry="7" fill="#1c1812" opacity="0.38"/>
-
-        <!-- Calcified speckle texture on the lit rock -->
-        <circle cx="78"  cy="420" r="2"   fill="#c2ab88" opacity="0.3"/>
-        <circle cx="110" cy="428" r="1.6" fill="#c2ab88" opacity="0.26"/>
-        <circle cx="300" cy="416" r="2"   fill="#c2ab88" opacity="0.3"/>
-        <circle cx="338" cy="424" r="1.6" fill="#c2ab88" opacity="0.26"/>
-        <circle cx="460" cy="424" r="2.2" fill="#c2ab88" opacity="0.28"/>
-        <circle cx="506" cy="430" r="1.6" fill="#c2ab88" opacity="0.24"/>
-        <circle cx="606" cy="420" r="2"   fill="#c2ab88" opacity="0.3"/>
-        <circle cx="636" cy="428" r="1.6" fill="#c2ab88" opacity="0.26"/>
-        <circle cx="738" cy="436" r="1.8" fill="#c2ab88" opacity="0.26"/>
-
-        <!-- Front rubble and a little sand catching in the low spots -->
-        <ellipse cx="120" cy="488" rx="80"  ry="14" fill="url(#gSand)" opacity="0.4"/>
-        <ellipse cx="430" cy="492" rx="100" ry="14" fill="url(#gSand)" opacity="0.4"/>
-        <ellipse cx="700" cy="490" rx="90"  ry="14" fill="url(#gSand)" opacity="0.4"/>
-        <circle cx="265" cy="480" r="5"   fill="#5a4d3c" opacity="0.55"/>
-        <circle cx="296" cy="486" r="3.5" fill="#6b5d49" opacity="0.5"/>
-        <circle cx="352" cy="490" r="3"   fill="#5a4d3c" opacity="0.5"/>
-        <circle cx="516" cy="482" r="4.5" fill="#5a4d3c" opacity="0.55"/>
-        <circle cx="656" cy="488" r="4"   fill="#6b5d49" opacity="0.45"/>
-
-        <!-- Contact shadows so each colony looks planted in the rock -->
-        <ellipse cx="88"  cy="416" rx="22" ry="6"  fill="#15110b" opacity="0.4"/>
-        <ellipse cx="320" cy="414" rx="22" ry="6"  fill="#15110b" opacity="0.4"/>
-        <ellipse cx="618" cy="446" rx="28" ry="7"  fill="#15110b" opacity="0.38"/>
-        <ellipse cx="196" cy="452" rx="30" ry="8"  fill="#15110b" opacity="0.35"/>
-        <ellipse cx="478" cy="460" rx="68" ry="10" fill="#15110b" opacity="0.3"/>
-        <ellipse cx="748" cy="460" rx="40" ry="8"  fill="#15110b" opacity="0.3"/>
-
-        <g id="corals">
-
-          <g class="coral-group" id="coral-1" data-base-hue="350" data-base-sat="65" data-base-light="68">
-            <g class="algae-glow" opacity="0"><ellipse cx="84" cy="400" rx="42" ry="30" fill="rgba(60,128,54,0.42)" filter="url(#fAlgae)"/><ellipse cx="88" cy="372" rx="30" ry="28" fill="rgba(64,128,54,0.36)" filter="url(#fAlgae)"/><ellipse cx="86" cy="412" rx="34" ry="13" fill="rgba(72,120,52,0.46)" filter="url(#fAlgae)"/></g>
-            <path class="coral-branch" d="M88,418 Q85,388 89,360 Q92,338 88,312" stroke="#e78b94" stroke-width="12" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M88,386 Q65,360 55,326" stroke="#e78b94" stroke-width="8" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M61,347 Q49,337 40,323" stroke="#e78b94" stroke-width="4.5" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M88,368 Q107,344 115,311" stroke="#e78b94" stroke-width="8" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M109,335 Q121,325 130,312" stroke="#e78b94" stroke-width="4.5" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M88,347 Q89,320 86,287" stroke="#e78b94" stroke-width="7" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M88,314 Q79,302 71,289" stroke="#e78b94" stroke-width="4" stroke-linecap="round" fill="none"/>
-            <path d="M85,416 Q82,388 86,360 Q89,340 85,314" stroke="rgba(255,255,255,0.28)" stroke-width="3" stroke-linecap="round" fill="none"/>
-            <path d="M86,384 Q66,359 57,328" stroke="rgba(255,255,255,0.22)" stroke-width="2.4" stroke-linecap="round" fill="none"/>
-            <ellipse class="coral-tip" cx="55" cy="324" rx="7" ry="8" fill="#e78b94"/>
-            <ellipse class="coral-tip" cx="40" cy="321" rx="5" ry="6" fill="#e78b94"/>
-            <ellipse class="coral-tip" cx="115" cy="308" rx="7" ry="8" fill="#e78b94"/>
-            <ellipse class="coral-tip" cx="130" cy="310" rx="5" ry="6" fill="#e78b94"/>
-            <ellipse class="coral-tip" cx="86" cy="285" rx="7" ry="8.5" fill="#e78b94"/>
-            <ellipse class="coral-tip" cx="71" cy="288" rx="4.5" ry="5.5" fill="#e78b94"/>
-            <circle class="coral-bump" cx="88" cy="400" r="2.2" fill="#d06f78" opacity="0.5"/>
-            <circle class="coral-bump" cx="83" cy="372" r="1.8" fill="#d06f78" opacity="0.45"/>
-            <circle class="coral-bump" cx="95" cy="360" r="1.8" fill="#d06f78" opacity="0.4"/>
-            <circle class="coral-bump" cx="86" cy="336" r="1.6" fill="#d06f78" opacity="0.4"/>
-            <!-- Algae mantle: soft wash + mottled clumps laid OVER the colony, then fronds -->
-            <g class="algae-on" opacity="0">
-              <ellipse cx="84" cy="398" rx="38" ry="30" fill="rgba(74,128,52,0.42)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="78" cy="370" rx="26" ry="26" fill="rgba(78,130,52,0.4)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="96" cy="356" rx="20" ry="22" fill="rgba(82,134,54,0.38)" filter="url(#fAlgaeSoft)"/>
-              <path d="M58,416 C72,407 104,407 116,416 C104,425 72,425 58,416 Z" fill="rgba(48,94,40,0.6)" filter="url(#fAlgaeSoft)"/>
-              <path d="M64,402 C56,386 64,366 80,366 C94,368 96,388 86,400 C79,407 70,409 64,402 Z" fill="rgba(90,142,56,0.55)"/>
-              <path d="M92,394 C86,378 98,360 110,366 C120,374 116,392 106,400 C99,404 96,402 92,394 Z" fill="rgba(58,108,44,0.6)"/>
-              <path d="M74,376 C68,362 78,346 90,350 C100,356 98,372 90,382 C84,388 78,384 74,376 Z" fill="rgba(112,156,68,0.42)"/>
-              <path class="algae-frond" d="M74,414 Q66,396 71,376 Q76,394 82,412 Z" fill="rgba(64,122,52,0.85)"/>
-              <path class="algae-frond" d="M100,412 Q109,394 104,374 Q113,392 116,410 Z" fill="rgba(92,150,60,0.8)"/>
-              <path class="algae-frond" d="M86,372 Q80,352 86,332 Q92,352 92,372 Z" fill="rgba(64,122,52,0.8)"/>
-              <path class="algae-frond" d="M62,348 Q54,332 60,314 Q66,332 70,348 Z" fill="rgba(92,150,60,0.82)"/>
-              <path class="algae-frond" d="M112,330 Q120,314 116,296 Q124,314 122,332 Z" fill="rgba(64,122,52,0.82)"/>
-              <path class="algae-frond" d="M80,300 Q83,278 86,260 Q89,278 92,300 Z" fill="rgba(92,150,60,0.8)"/>
-            </g>
-          </g>
-
-          <g class="coral-group" id="coral-2" data-base-hue="8" data-base-sat="70" data-base-light="64">
-            <g class="algae-glow" opacity="0"><ellipse cx="195" cy="428" rx="40" ry="30" fill="rgba(60,128,54,0.46)" filter="url(#fAlgae)"/><ellipse cx="196" cy="448" rx="30" ry="12" fill="rgba(72,120,52,0.5)" filter="url(#fAlgae)"/></g>
-            <!-- Small massive / brain coral: a low rounded mound with a few lobes -->
-            <ellipse cx="200" cy="450" rx="28" ry="9" fill="rgba(20,15,30,0.18)"/>
-            <ellipse class="coral-body" cx="195" cy="436" rx="32" ry="22" fill="#e6816c"/>
-            <ellipse class="coral-body" cx="182" cy="419" rx="12" ry="9" fill="#e6816c"/>
-            <ellipse class="coral-body" cx="206" cy="418" rx="13" ry="10" fill="#e6816c"/>
-            <ellipse class="coral-body" cx="194" cy="412" rx="10" ry="8" fill="#e6816c"/>
-            <ellipse cx="184" cy="424" rx="14" ry="7" fill="rgba(255,255,255,0.2)"/>
-            <path d="M174,432 Q195,424 216,432" stroke="rgba(150,70,60,0.22)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <path d="M178,422 Q195,416 212,422" stroke="rgba(150,70,60,0.2)" stroke-width="2" stroke-linecap="round" fill="none"/>
-            <circle class="coral-bump" cx="184" cy="432" r="2" fill="#cf6f5c" opacity="0.45"/>
-            <circle class="coral-bump" cx="206" cy="434" r="1.8" fill="#cf6f5c" opacity="0.4"/>
-            <circle class="coral-bump" cx="195" cy="424" r="1.8" fill="#cf6f5c" opacity="0.4"/>
-            <circle class="coral-bump" cx="176" cy="428" r="1.6" fill="#cf6f5c" opacity="0.35"/>
-            <circle class="coral-bump" cx="214" cy="430" r="1.6" fill="#cf6f5c" opacity="0.35"/>
-            <g class="algae-on" opacity="0">
-              <ellipse cx="193" cy="436" rx="32" ry="22" fill="rgba(74,128,52,0.44)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="184" cy="424" rx="18" ry="16" fill="rgba(80,132,54,0.4)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="206" cy="424" rx="16" ry="15" fill="rgba(80,132,54,0.4)" filter="url(#fAlgaeSoft)"/>
-              <path d="M168,448 C184,440 212,440 224,448 C210,456 184,456 168,448 Z" fill="rgba(48,94,40,0.58)" filter="url(#fAlgaeSoft)"/>
-              <path d="M176,436 C168,424 178,410 192,412 C204,414 204,430 194,440 C188,446 182,444 176,436 Z" fill="rgba(90,142,56,0.55)"/>
-              <path d="M198,434 C192,422 206,410 216,418 C224,426 220,438 210,444 C204,448 202,442 198,434 Z" fill="rgba(58,108,44,0.6)"/>
-              <path d="M184,424 C178,414 188,404 198,408 C206,412 204,422 196,428 C190,432 188,430 184,424 Z" fill="rgba(112,156,68,0.42)"/>
-              <path class="algae-frond" d="M180,420 Q174,404 180,388 Q186,404 188,420 Z" fill="rgba(64,122,52,0.85)"/>
-              <path class="algae-frond" d="M196,416 Q190,398 196,382 Q202,398 204,416 Z" fill="rgba(92,150,60,0.8)"/>
-              <path class="algae-frond" d="M212,420 Q206,404 212,390 Q218,404 220,420 Z" fill="rgba(64,122,52,0.82)"/>
-              <path class="algae-frond" d="M188,418 Q183,402 187,388 Q192,402 194,418 Z" fill="rgba(92,150,60,0.8)"/>
-              <path class="algae-frond" d="M204,418 Q199,402 203,388 Q208,402 210,418 Z" fill="rgba(64,122,52,0.8)"/>
-            </g>
-          </g>
-
-          <g class="coral-group" id="coral-3" data-base-hue="292" data-base-sat="30" data-base-light="60">
-            <g class="algae-glow" opacity="0"><ellipse cx="318" cy="400" rx="42" ry="30" fill="rgba(60,128,54,0.42)" filter="url(#fAlgae)"/><ellipse cx="322" cy="372" rx="30" ry="28" fill="rgba(64,128,54,0.36)" filter="url(#fAlgae)"/><ellipse cx="320" cy="412" rx="34" ry="13" fill="rgba(72,120,52,0.46)" filter="url(#fAlgae)"/></g>
-            <path class="coral-branch" d="M320,417 Q324,378 319,335" stroke="#a07ba6" stroke-width="12" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M320,388 Q300,366 290,332" stroke="#a07ba6" stroke-width="8" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M296,352 Q286,342 279,330" stroke="#a07ba6" stroke-width="4.5" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M320,372 Q341,352 349,318" stroke="#a07ba6" stroke-width="8" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M343,340 Q353,332 360,320" stroke="#a07ba6" stroke-width="4.5" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M349,326 Q358,320 366,326" stroke="#a07ba6" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M320,348 Q318,320 322,290" stroke="#a07ba6" stroke-width="7" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M321,316 Q329,306 336,296" stroke="#a07ba6" stroke-width="4" stroke-linecap="round" fill="none"/>
-            <path d="M317,416 Q321,380 316,338" stroke="rgba(255,255,255,0.26)" stroke-width="3" stroke-linecap="round" fill="none"/>
-            <path d="M318,372 Q339,353 347,320" stroke="rgba(255,255,255,0.2)" stroke-width="2.4" stroke-linecap="round" fill="none"/>
-            <ellipse class="coral-tip" cx="290" cy="330" rx="7" ry="8" fill="#a07ba6"/>
-            <ellipse class="coral-tip" cx="279" cy="328" rx="4.5" ry="5.5" fill="#a07ba6"/>
-            <ellipse class="coral-tip" cx="349" cy="316" rx="7" ry="8" fill="#a07ba6"/>
-            <ellipse class="coral-tip" cx="360" cy="318" rx="4.5" ry="5.5" fill="#a07ba6"/>
-            <ellipse class="coral-tip" cx="366" cy="324" rx="4" ry="5" fill="#a07ba6"/>
-            <ellipse class="coral-tip" cx="322" cy="288" rx="7" ry="8.5" fill="#a07ba6"/>
-            <ellipse class="coral-tip" cx="336" cy="294" rx="4.5" ry="5.5" fill="#a07ba6"/>
-            <circle class="coral-bump" cx="320" cy="400" r="2.2" fill="#8c6992" opacity="0.45"/>
-            <circle class="coral-bump" cx="316" cy="372" r="1.8" fill="#8c6992" opacity="0.4"/>
-            <circle class="coral-bump" cx="326" cy="360" r="1.8" fill="#8c6992" opacity="0.4"/>
-            <circle class="coral-bump" cx="320" cy="334" r="1.6" fill="#8c6992" opacity="0.4"/>
-            <g class="algae-on" opacity="0">
-              <ellipse cx="318" cy="396" rx="38" ry="30" fill="rgba(74,128,52,0.42)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="310" cy="368" rx="26" ry="26" fill="rgba(78,130,52,0.4)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="332" cy="356" rx="20" ry="22" fill="rgba(82,134,54,0.38)" filter="url(#fAlgaeSoft)"/>
-              <path d="M294,416 C308,407 340,407 352,416 C340,425 308,425 294,416 Z" fill="rgba(48,94,40,0.6)" filter="url(#fAlgaeSoft)"/>
-              <path d="M300,400 C292,384 302,366 316,366 C330,368 330,388 320,400 C313,407 306,407 300,400 Z" fill="rgba(90,142,56,0.55)"/>
-              <path d="M328,392 C322,376 334,360 346,366 C356,374 352,392 342,400 C335,404 332,400 328,392 Z" fill="rgba(58,108,44,0.6)"/>
-              <path d="M310,374 C304,360 314,346 326,350 C336,356 334,372 326,382 C320,388 314,384 310,374 Z" fill="rgba(112,156,68,0.42)"/>
-              <path class="algae-frond" d="M306,414 Q298,396 303,376 Q308,394 314,412 Z" fill="rgba(64,122,52,0.85)"/>
-              <path class="algae-frond" d="M332,412 Q341,394 336,374 Q345,392 348,410 Z" fill="rgba(92,150,60,0.8)"/>
-              <path class="algae-frond" d="M320,372 Q314,352 320,332 Q326,352 326,372 Z" fill="rgba(64,122,52,0.8)"/>
-              <path class="algae-frond" d="M296,348 Q288,332 294,314 Q300,332 304,348 Z" fill="rgba(92,150,60,0.82)"/>
-              <path class="algae-frond" d="M346,330 Q354,314 350,296 Q358,314 356,332 Z" fill="rgba(64,122,52,0.82)"/>
-              <path class="algae-frond" d="M316,302 Q319,280 322,262 Q325,280 328,302 Z" fill="rgba(92,150,60,0.8)"/>
-            </g>
-          </g>
-
-          <g class="coral-group" id="coral-4" data-base-hue="210" data-base-sat="48" data-base-light="70">
-            <g class="algae-glow" opacity="0"><ellipse cx="478" cy="400" rx="80" ry="38" fill="rgba(60,128,54,0.46)" filter="url(#fAlgae)"/><ellipse cx="478" cy="430" rx="48" ry="13" fill="rgba(72,120,52,0.5)" filter="url(#fAlgae)"/></g>
-            <!-- Table coral: irregular plate on a short stem, slightly tilted (not a perfect disc) -->
-            <path class="coral-body" d="M471,449 Q469,426 476,402 L487,402 Q491,426 488,449 Z" fill="#84a6d6"/>
-            <path d="M483,449 Q487,426 487,402 L488,402 Q491,426 488,449 Z" fill="rgba(20,30,50,0.28)"/>
-            <path d="M420,404 C452,399 512,399 544,405 C512,413 452,413 420,404 Z" fill="rgba(20,30,50,0.42)"/>
-            <g transform="rotate(-3 480 399)">
-              <path class="coral-body" d="M416,400 C432,388 454,384 484,385 C518,386 540,391 548,401 C540,409 516,414 484,413 C454,412 430,409 416,400 Z" fill="#84a6d6"/>
-              <path d="M430,396 C452,389 500,389 528,395 C504,400 456,400 430,396 Z" fill="rgba(255,255,255,0.32)"/>
-              <circle class="coral-bump" cx="450" cy="398" r="2" fill="#6f93c4" opacity="0.45"/>
-              <circle class="coral-bump" cx="480" cy="399" r="2" fill="#6f93c4" opacity="0.4"/>
-              <circle class="coral-bump" cx="510" cy="398" r="2" fill="#6f93c4" opacity="0.45"/>
-              <circle class="coral-bump" cx="465" cy="401" r="1.6" fill="#6f93c4" opacity="0.35"/>
-              <circle class="coral-bump" cx="495" cy="401" r="1.6" fill="#6f93c4" opacity="0.35"/>
-            </g>
-            <g class="algae-on" opacity="0">
-              <ellipse cx="478" cy="398" rx="64" ry="20" fill="rgba(74,128,52,0.42)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="452" cy="394" rx="28" ry="14" fill="rgba(80,132,54,0.4)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="508" cy="396" rx="26" ry="14" fill="rgba(80,132,54,0.38)" filter="url(#fAlgaeSoft)"/>
-              <path d="M420,406 C452,400 512,400 544,406 C512,414 452,414 420,406 Z" fill="rgba(48,94,40,0.55)" filter="url(#fAlgaeSoft)"/>
-              <path d="M430,398 C440,388 458,386 472,390 C482,394 480,404 468,408 C454,412 436,408 430,398 Z" fill="rgba(90,142,56,0.55)"/>
-              <path d="M488,398 C500,388 522,388 536,396 C528,406 508,410 492,406 C484,404 484,402 488,398 Z" fill="rgba(58,108,44,0.58)"/>
-              <path d="M456,394 C468,388 484,388 496,392 C490,400 470,402 460,400 C454,398 454,396 456,394 Z" fill="rgba(112,156,68,0.42)"/>
-              <path class="algae-frond" d="M448,390 Q442,372 448,354 Q454,372 456,390 Z" fill="rgba(64,122,52,0.85)"/>
-              <path class="algae-frond" d="M478,388 Q472,368 478,350 Q484,368 486,388 Z" fill="rgba(92,150,60,0.82)"/>
-              <path class="algae-frond" d="M508,390 Q502,372 508,356 Q514,372 516,390 Z" fill="rgba(64,122,52,0.82)"/>
-              <path class="algae-frond" d="M464,389 Q459,374 463,360 Q468,374 470,389 Z" fill="rgba(92,150,60,0.8)"/>
-              <path class="algae-frond" d="M492,389 Q487,374 491,360 Q496,374 498,389 Z" fill="rgba(64,122,52,0.8)"/>
-            </g>
-          </g>
-
-          <g class="coral-group" id="coral-5" data-base-hue="30" data-base-sat="78" data-base-light="62">
-            <g class="algae-glow" opacity="0"><ellipse cx="618" cy="420" rx="52" ry="34" fill="rgba(60,128,54,0.42)" filter="url(#fAlgae)"/><ellipse cx="614" cy="382" rx="38" ry="34" fill="rgba(64,128,54,0.36)" filter="url(#fAlgae)"/><ellipse cx="618" cy="444" rx="40" ry="14" fill="rgba(72,120,52,0.46)" filter="url(#fAlgae)"/></g>
-            <!-- Hero branching staghorn: the tallest colony, clearly read as branching coral -->
-            <path class="coral-branch" d="M618,447 Q613,402 620,362 Q625,330 619,300" stroke="#e88f44" stroke-width="14" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M618,402 Q588,374 576,338" stroke="#e88f44" stroke-width="9" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M580,356 Q568,346 558,330" stroke="#e88f44" stroke-width="5" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M620,392 Q650,366 662,330" stroke="#e88f44" stroke-width="9" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M656,348 Q668,339 678,326" stroke="#e88f44" stroke-width="5" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M619,344 Q606,324 597,304" stroke="#e88f44" stroke-width="6" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M619,332 Q633,316 643,300" stroke="#e88f44" stroke-width="6" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M619,302 Q611,290 603,280" stroke="#e88f44" stroke-width="5" stroke-linecap="round" fill="none"/>
-            <path class="coral-branch" d="M619,302 Q628,290 636,282" stroke="#e88f44" stroke-width="5" stroke-linecap="round" fill="none"/>
-            <path d="M615,446 Q611,402 618,362 Q623,332 617,302" stroke="rgba(255,255,255,0.26)" stroke-width="3" stroke-linecap="round" fill="none"/>
-            <path d="M618,398 Q592,372 580,340" stroke="rgba(255,255,255,0.2)" stroke-width="2.4" stroke-linecap="round" fill="none"/>
-            <ellipse class="coral-tip" cx="619" cy="297" rx="11" ry="9" fill="#e88f44"/>
-            <ellipse class="coral-tip" cx="558" cy="328" rx="6" ry="7" fill="#e88f44"/>
-            <ellipse class="coral-tip" cx="678" cy="322" rx="6" ry="7" fill="#e88f44"/>
-            <ellipse class="coral-tip" cx="597" cy="302" rx="6" ry="7" fill="#e88f44"/>
-            <ellipse class="coral-tip" cx="643" cy="297" rx="6" ry="7" fill="#e88f44"/>
-            <ellipse class="coral-tip" cx="603" cy="278" rx="5" ry="6" fill="#e88f44"/>
-            <ellipse class="coral-tip" cx="636" cy="280" rx="5" ry="6" fill="#e88f44"/>
-            <ellipse class="coral-tip" cx="576" cy="336" rx="5" ry="6" fill="#e88f44"/>
-            <ellipse class="coral-tip" cx="662" cy="328" rx="5" ry="6" fill="#e88f44"/>
-            <circle class="coral-bump" cx="618" cy="420" r="2.2" fill="#cf7e36" opacity="0.5"/>
-            <circle class="coral-bump" cx="614" cy="388" r="1.8" fill="#cf7e36" opacity="0.45"/>
-            <circle class="coral-bump" cx="624" cy="372" r="1.8" fill="#cf7e36" opacity="0.4"/>
-            <circle class="coral-bump" cx="618" cy="346" r="1.6" fill="#cf7e36" opacity="0.4"/>
-            <circle class="coral-bump" cx="606" cy="330" r="1.4" fill="#cf7e36" opacity="0.35"/>
-            <g class="algae-on" opacity="0">
-              <ellipse cx="618" cy="418" rx="48" ry="34" fill="rgba(74,128,52,0.42)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="604" cy="382" rx="34" ry="32" fill="rgba(78,130,52,0.4)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="634" cy="366" rx="26" ry="28" fill="rgba(82,134,54,0.38)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="620" cy="346" rx="18" ry="22" fill="rgba(84,136,56,0.34)" filter="url(#fAlgaeSoft)"/>
-              <path d="M576,444 C596,432 642,432 660,444 C642,456 596,456 576,444 Z" fill="rgba(48,94,40,0.6)" filter="url(#fAlgaeSoft)"/>
-              <path d="M588,420 C578,398 590,372 610,372 C628,374 630,400 616,418 C607,428 596,430 588,420 Z" fill="rgba(90,142,56,0.55)"/>
-              <path d="M624,408 C616,386 636,362 652,372 C666,382 660,406 646,418 C637,424 630,418 624,408 Z" fill="rgba(58,108,44,0.6)"/>
-              <path d="M600,384 C592,366 606,344 624,350 C638,356 634,378 622,392 C614,398 606,396 600,384 Z" fill="rgba(112,156,68,0.42)"/>
-              <path class="algae-frond" d="M618,420 Q610,378 618,338 Q626,378 628,420 Z" fill="rgba(92,150,60,0.82)"/>
-              <path class="algae-frond" d="M598,410 Q586,378 594,346 Q606,378 610,410 Z" fill="rgba(64,122,52,0.85)"/>
-              <path class="algae-frond" d="M640,410 Q652,378 644,346 Q656,378 644,410 Z" fill="rgba(64,122,52,0.82)"/>
-              <path class="algae-frond" d="M580,392 Q568,368 576,344 Q588,368 592,392 Z" fill="rgba(92,150,60,0.8)"/>
-              <path class="algae-frond" d="M656,392 Q668,368 660,344 Q648,368 644,392 Z" fill="rgba(92,150,60,0.8)"/>
-              <path class="algae-frond" d="M611,312 Q615,282 619,262 Q623,282 627,312 Z" fill="rgba(92,150,60,0.82)"/>
-            </g>
-          </g>
-
-          <g class="coral-group" id="coral-6" data-base-hue="46" data-base-sat="65" data-base-light="64">
-            <g class="algae-glow" opacity="0"><ellipse cx="748" cy="410" rx="56" ry="46" fill="rgba(60,128,54,0.46)" filter="url(#fAlgae)"/><ellipse cx="748" cy="430" rx="40" ry="14" fill="rgba(72,120,52,0.5)" filter="url(#fAlgae)"/></g>
-            <ellipse class="coral-body" cx="748" cy="414" rx="46" ry="36" fill="#dcb24c"/>
-            <ellipse class="coral-body" cx="734" cy="390" rx="14" ry="11" fill="#dcb24c"/>
-            <ellipse class="coral-body" cx="762" cy="392" rx="15" ry="12" fill="#dcb24c"/>
-            <ellipse class="coral-body" cx="748" cy="384" rx="12" ry="10" fill="#dcb24c"/>
-            <ellipse cx="736" cy="400" rx="18" ry="11" fill="rgba(255,255,255,0.2)"/>
-            <ellipse cx="760" cy="430" rx="30" ry="14" fill="rgba(20,15,30,0.18)"/>
-            <circle class="coral-bump" cx="734" cy="414" r="2" fill="#c19838" opacity="0.4"/>
-            <circle class="coral-bump" cx="760" cy="418" r="1.8" fill="#c19838" opacity="0.4"/>
-            <circle class="coral-bump" cx="748" cy="404" r="1.8" fill="#c19838" opacity="0.4"/>
-            <circle class="coral-bump" cx="724" cy="408" r="1.6" fill="#c19838" opacity="0.35"/>
-            <circle class="coral-bump" cx="770" cy="408" r="1.6" fill="#c19838" opacity="0.35"/>
-            <g class="algae-on" opacity="0">
-              <ellipse cx="748" cy="416" rx="46" ry="32" fill="rgba(74,128,52,0.44)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="734" cy="394" rx="22" ry="18" fill="rgba(80,132,54,0.4)" filter="url(#fAlgaeSoft)"/>
-              <ellipse cx="762" cy="396" rx="22" ry="18" fill="rgba(80,132,54,0.4)" filter="url(#fAlgaeSoft)"/>
-              <path d="M706,418 C724,408 772,408 790,418 C772,430 724,430 706,418 Z" fill="rgba(48,94,40,0.58)" filter="url(#fAlgaeSoft)"/>
-              <path d="M714,404 C706,388 720,372 736,374 C750,378 748,398 736,408 C728,414 720,412 714,404 Z" fill="rgba(90,142,56,0.55)"/>
-              <path d="M748,400 C742,384 760,366 776,374 C788,382 784,402 770,410 C760,416 752,410 748,400 Z" fill="rgba(58,108,44,0.6)"/>
-              <path d="M730,388 C724,374 738,360 752,364 C762,370 760,384 750,392 C742,398 734,396 730,388 Z" fill="rgba(112,156,68,0.42)"/>
-              <path class="algae-frond" d="M724,398 Q718,380 724,362 Q730,380 732,398 Z" fill="rgba(64,122,52,0.85)"/>
-              <path class="algae-frond" d="M748,392 Q742,372 748,354 Q754,372 756,392 Z" fill="rgba(92,150,60,0.82)"/>
-              <path class="algae-frond" d="M772,398 Q766,380 772,364 Q778,380 780,398 Z" fill="rgba(64,122,52,0.82)"/>
-              <path class="algae-frond" d="M736,396 Q731,380 735,366 Q740,380 742,396 Z" fill="rgba(92,150,60,0.8)"/>
-              <path class="algae-frond" d="M760,396 Q755,380 759,366 Q764,380 766,396 Z" fill="rgba(64,122,52,0.8)"/>
-            </g>
-          </g>
-
-        </g>
-
-        <g id="decorations">
-          <g transform="translate(95,444)">
-            <circle r="10" fill="#1a1a2e"/>
-            <circle r="7" fill="#222240"/>
-            <g stroke="#2d2d3d" stroke-width="1.3" stroke-linecap="round">
-              <line x1="0" y1="-10" x2="0" y2="-20"/>
-              <line x1="7" y1="-7" x2="14" y2="-14"/>
-              <line x1="10" y1="0" x2="18" y2="0"/>
-              <line x1="7" y1="7" x2="14" y2="14"/>
-              <line x1="-7" y1="-7" x2="-14" y2="-14"/>
-              <line x1="-10" y1="0" x2="-18" y2="0"/>
-              <line x1="-7" y1="7" x2="-14" y2="14"/>
-              <line x1="0" y1="10" x2="0" y2="16"/>
-              <line x1="5" y1="-9" x2="8" y2="-18"/>
-              <line x1="-5" y1="-9" x2="-8" y2="-18"/>
-              <line x1="9" y1="4" x2="16" y2="8"/>
-              <line x1="-9" y1="4" x2="-16" y2="8"/>
-            </g>
-          </g>
-
-          <g transform="translate(715,435) rotate(15)">
-            <polygon points="0,-12 3,-4 12,-4 5,1.5 7,10 0,5.5 -7,10 -5,1.5 -12,-4 -3,-4" fill="#c0392b" opacity="0.8"/>
-            <circle r="3" fill="#a83025" opacity="0.6"/>
-          </g>
-
-          <g transform="translate(395,450)">
-            <ellipse cx="0" cy="7" rx="15" ry="5" fill="#15110b" opacity="0.3"/>
-            <ellipse cx="0" cy="-1" rx="14" ry="11" fill="#a85d8a"/>
-            <ellipse cx="0" cy="-2" rx="5" ry="3.5" fill="#7a3f6b" opacity="0.55"/>
-            <ellipse cx="-4" cy="-6" rx="7" ry="4" fill="rgba(255,255,255,0.18)"/>
-          </g>
-
-          <g transform="translate(560,434)">
-            <rect x="-5" y="-25" width="10" height="25" rx="4" fill="#8e6baa" opacity="0.75"/>
-            <ellipse cx="0" cy="-25" rx="6" ry="3" fill="#7a5a96" opacity="0.7"/>
-            <ellipse cx="0" cy="-25" rx="3.5" ry="1.8" fill="#4a3560" opacity="0.6"/>
-          </g>
-
-          <ellipse cx="420" cy="458" rx="7" ry="4.5" fill="#d4c4a8" opacity="0.6"/>
-          <path d="M416,458 Q420,452 424,458" stroke="#b8a888" stroke-width="0.8" fill="none" opacity="0.5"/>
-        </g>
-
-        <!-- Nutrient-pollution water haze. Sits on top so it tints the whole scene; opacity is
-             set every frame from the eased nutrient level (updateWaterHaze). Pointer-transparent. -->
-        <rect id="pollution-haze" width="800" height="500" fill="url(#gMurk)" opacity="0"
-              pointer-events="none" style="transition:opacity 0.4s linear"/>
-      </svg>
-    </div>
-
-    <div id="intro-overlay" role="dialog" aria-modal="true" aria-labelledby="intro-title">
-      <div class="intro-content">
-        <h2 id="intro-title" class="intro-title">THRESHOLD REEF</h2>
-        <p class="intro-subtitle">How one small change can unravel an entire ecosystem</p>
-
-        <p class="intro-lead">Coral reefs are a thin sliver of the ocean, yet nearly a quarter of all marine life depends on them, and so do hundreds of millions of people. They are also among the fastest changing ecosystems on Earth.</p>
-        <p class="intro-agency">For one decade, this reef is in <strong>your</strong> hands. Three pressures decide whether it thrives or collapses.</p>
-
-        <div class="intro-vars">
-          <div class="intro-var">
-            <div class="intro-var-icon">🌡️</div>
-            <h3>Temperature</h3>
-            <p>Heat breaks the partnership between corals and their algae, and they bleach.</p>
-          </div>
-          <div class="intro-var">
-            <div class="intro-var-icon">🎣</div>
-            <h3>Fishing</h3>
-            <p>Fish are the reef's lawnmowers. Remove them and algae takes over.</p>
-          </div>
-          <div class="intro-var">
-            <div class="intro-var-icon">🏭</div>
-            <h3>Pollution</h3>
-            <p>Nutrient runoff acts like fertilizer, feeding explosive algae growth.</p>
-          </div>
+      <div class="media cz-coral" tabindex="0" role="group" aria-roledescription="Bildkarussell" aria-label="Coral Reefs on the Brink, Einblicke in den Kurs">
+        <div class="track">
+          <div class="slide"><img src="assets/coral-01.jpg" alt="Riff-Szene mit Biodiversitäts-Regler" loading="eager" decoding="async"></div>
+          <div class="slide"><img src="assets/coral-02.jpg" alt="Entscheidung: das Biodiversitäts-Team wiederherstellen" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/coral-03.jpg" alt="Korallen-Energiehaushalt, Status Normal" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/coral-04.jpg" alt="Einstieg in die Field Practice" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/coral-05.jpg" alt="Übung: Hitzestress-Diagramme lesen" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/coral-06.jpg" alt="Monitoring- und Briefing-Szene" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/coral-07.jpg" alt="Decision Lab des Kurses: nächste Handlung wählen" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/coral-08.jpg" alt="Abschluss-Artefakt: My Reef Conservation Journey" loading="lazy" decoding="async"></div>
         </div>
-
-        <div class="intro-beats">
-          <p class="intro-beat">These pressures do not just add up. They <strong>multiply</strong>.</p>
-          <p class="intro-beat">Somewhere there is a <strong>tipping point</strong>. Move the sliders and find it.</p>
-          <p class="intro-beat">Curious why it happens? Open <strong>The Science</strong> anytime.</p>
+        <button class="c-btn prev" aria-label="Vorheriges Bild"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="c-btn next" aria-label="Nächstes Bild"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button>
+        <div class="c-dots">
+          <button class="on" aria-label="Bild 1"></button><button aria-label="Bild 2"></button><button aria-label="Bild 3"></button><button aria-label="Bild 4"></button><button aria-label="Bild 5"></button><button aria-label="Bild 6"></button><button aria-label="Bild 7"></button><button aria-label="Bild 8"></button>
         </div>
-
-        <button id="start-btn">Start Exploring</button>
+        <div class="c-count"><b>1</b> / 8</div>
       </div>
     </div>
 
-    <div id="info-overlay" role="dialog" aria-modal="true" aria-labelledby="info-title" aria-hidden="true" inert tabindex="-1">
-      <div class="info-content">
-        <h2 id="info-title">The Science Behind It</h2>
-        <div class="info-rule"></div>
-
-        <p class="info-intro">A coral reef is a constant competition for space between two players: reef-building <strong>coral</strong> and fast-growing <strong>algae</strong>. Which one wins isn't fixed; it depends on the balance between them. Grazing fish and clean water keep coral ahead, while warming, overfishing and pollution tip the advantage toward algae. The catch is that this balance has <strong>thresholds</strong>. Nudge the reef and it springs back. Push it past a threshold and it flips to an algae-dominated state that holds itself there, even after you ease off.</p>
-
-        <div class="info-section">
-          <div class="sec-chip">🌡️</div>
-          <div class="sec-body">
-            <h3>Temperature &amp; Coral Bleaching</h3>
-            <p>Corals get their colors from <strong>tiny algae living inside their tissue</strong>. The algae make food by photosynthesis; the coral gives them a home. When water gets too warm, this partnership breaks down: the coral expels its algae and turns ghostly white. That's <strong>bleaching</strong>. Without its partners, the coral slowly starves.</p>
-            <details class="info-more">
-              <summary>More on heat &amp; recovery</summary>
-              <p>Bleaching isn't always death. If the water cools in time, corals can take their algae back and <strong>regain color within weeks</strong>. But if heat is severe or lasts too long, it kills coral <strong>directly, even when grazers are protected and the water is clean</strong>. And when grazers are gone and nutrients are high, algae overgrows the weakened coral before it can recover, turning a survivable heatwave into a collapse. Repeated heatwaves, now arriving almost yearly, leave less and less time to recover between hits.</p>
-            </details>
-          </div>
+    <div class="piece flip reveal">
+      <div class="p-text">
+        <div class="p-eyebrow"><span class="pn">02</span> <span class="de">Szenario-Microlearning</span><span class="en">Scenario microlearning</span> <span class="p-lang">DE</span></div>
+        <h3>Der widerspenstige Fachexperte</h3>
+        <div class="p-row"><span class="lbl"><span class="de">Was</span><span class="en">What</span></span><p class="de">Microlearning, in dem man als L&amp;D-Berater einen widerstrebenden Experten überzeugt, der ein Verhaltensproblem mit 140 Folien Theorie „erschlagen&#8220; will. Aus der Verhandlung entsteht ein Praxisplan; zwei kleine Prototypen führen beispielhaft vor, wie man ihn in echtes Action Mapping übersetzt.</p><p class="en">A microlearning piece where, as an L&amp;D consultant, you have to win over a reluctant subject-matter expert who wants to “bury” a behavior problem under 140 slides of theory. The negotiation produces a practical plan; two small prototypes show how to translate it into real action mapping.</p></div>
+        <div class="p-row"><span class="lbl"><span class="de">Warum</span><span class="en">Why</span></span><p class="de">Mein Strategie- und Consulting-Beleg. Es zeigt, dass ich als strategischer Learning Consultant denke, nicht als bloßer Umsetzer: Ich erkenne ein Verhaltens- statt Wissensproblem, führe einen schwierigen Experten als Partner statt ihn zu überstimmen, und baue das Ganze als <strong>echte Verhandlung statt als verkleidetes Quiz.</strong> Drei plausible Optionen pro Stufe, bewusst nicht als richtig/falsch markiert; das Feedback erklärt jeweils das Prinzip dahinter.</p><p class="en">My strategy and consulting credential. It shows that I think like a strategic learning consultant, not a mere implementer: I recognize a behavior problem rather than a knowledge problem, guide a difficult expert as a partner instead of overruling him, and build the whole thing as <strong>a real negotiation, not a quiz in disguise.</strong> Three plausible options at each stage, deliberately not marked right or wrong; the feedback explains the principle behind each one.</p></div>
+        <div class="p-row"><span class="lbl"><span class="de">Für wen</span><span class="en">Who for</span></span><p class="de">L&amp;D, EdTech, Hochschule, Biotech/Healthcare, kein Pharma-Vorwissen nötig · Deutsch.</p><p class="en">L&amp;D, EdTech, higher education, biotech/healthcare, no pharma background needed · German.</p></div>
+        <div class="p-links"><a href="https://share.eu.articulate.com/OX7qa4GfrjAGJ84xw7_Qs" target="_blank" rel="noopener" class="link-coral"><span class="de">Kurs ansehen</span><span class="en">View the course</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a href="assets/SMEDesignDossier.pdf" target="_blank" rel="noopener" class="link-muted"><span class="de">Mehr erfahren</span><span class="en">Learn more</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+      </div>
+      <div class="media cz-sme" tabindex="0" role="group" aria-roledescription="Bildkarussell" aria-label="SME Negotiation, Einblicke in das Microlearning">
+        <div class="track">
+          <div class="slide"><img src="assets/sme-01.jpg" alt="Verhandlung mit dem Experten Dr. Weber" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/sme-02.jpg" alt="Branching-Dialog mit drei plausiblen Optionen" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/sme-03.jpg" alt="Ergebnis: Dr. Weber als strategischer Partner gewonnen" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/sme-04.jpg" alt="Stress-Prototyp: Entscheidung an der Sterilbank" loading="lazy" decoding="async"></div>
         </div>
-
-        <div class="info-section">
-          <div class="sec-chip">🎣</div>
-          <div class="sec-body">
-            <h3>Fish: The Reef's Lawnmowers</h3>
-            <p>Healthy reefs depend on <strong>herbivorous fish</strong> like parrotfish and surgeonfish that constantly graze algae, keeping it trimmed short. They are the reef's maintenance crew. Remove them through overfishing and <strong>algae grows unchecked</strong>, smothering coral and blocking its light.</p>
-            <details class="info-more">
-              <summary>More on why fish are the key lever</summary>
-              <p>Grazers don't just trim algae. They decide whether the reef can recover at all. In this simulation, watch low fishing even when pollution is high: the fish eat algae as fast as the nutrients grow it. Remove them and nothing holds algae back. That's why the <strong>tipping point lives mostly on the fishing lever</strong> in this simulation, and why protecting herbivores is one of the most powerful local moves a reef manager has.</p>
-            </details>
-          </div>
+        <button class="c-btn prev" aria-label="Vorheriges Bild"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="c-btn next" aria-label="Nächstes Bild"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button>
+        <div class="c-dots">
+          <button class="on" aria-label="Bild 1"></button><button aria-label="Bild 2"></button><button aria-label="Bild 3"></button><button aria-label="Bild 4"></button>
         </div>
+        <div class="c-count"><b>1</b> / 4</div>
+      </div>
+    </div>
 
-        <div class="info-section">
-          <div class="sec-chip">🏭</div>
-          <div class="sec-body">
-            <h3>Pollution: Fertilizing the Problem</h3>
-            <p>When fertilizer and sewage wash in from farms and cities, they act as <strong>food for algae</strong>. A thin film that grazers could handle explodes into thick mats that compete with coral for space, light and oxygen.</p>
-            <details class="info-more">
-              <summary>More on how pollution shifts the balance</summary>
-              <p>In this simplified model, nutrients don't kill coral directly; they make the algae side of the competition stronger. Extra fertilizer lets algae grow faster than grazers can keep up, so the same number of fish can no longer hold the line. Pollution widens the danger zone: a reef that could survive heavy fishing in clean water tips far sooner when the water is also fertilized. It rarely acts alone, but it tips the odds toward algae.</p>
-            </details>
-          </div>
+    <div class="piece reveal">
+      <div class="p-text">
+        <div class="p-eyebrow"><span class="pn">03</span> <span class="de">Interaktive Simulation</span><span class="en">Interactive simulation</span> <span class="p-lang">EN</span></div>
+        <h3>Threshold Reef</h3>
+        <div class="p-row"><span class="lbl"><span class="de">Was</span><span class="en">What</span></span><p class="de">Eine browserbasierte Korallenriff-Simulation. Man verstellt drei reale Stressoren, Temperatur, Fischerei und Pollution, und sieht das Riff in Echtzeit reagieren: Korallen bleichen, Algen überwuchern, das Wasser trübt. <strong>Dreht man die Regler zurück, kommt ein gekipptes Riff trotzdem nicht zurück.</strong></p><p class="en">A browser-based coral reef simulation. You move three real stressors, temperature, fishing and pollution, and watch the reef respond in real time: corals bleach, algae take over, the water clouds. <strong>Turn the dials back down, and a reef that has tipped still doesn't return.</strong></p></div>
+        <div class="p-row"><span class="lbl"><span class="de">Warum</span><span class="en">Why</span></span><p class="de">Anders als ein Erklär-Video trägt das Stück echten Zustand über Zeit: zwei gekoppelte Gleichungen aus dem Korallen-Makroalgen-Modell von Mumby, Hastings und Edwards (2007) erzeugen einen echten Kipppunkt mit Hysterese, nicht eine Animation, die nur ein passendes Bild malt. Der Aufhänger ist der eine Moment, in dem man die Pressung auf den Stand zurückstellt, bei dem das Riff vor einer Minute noch blühte, und es trotzdem nicht zurückkommt. Eine Begleitseite legt offen, was modelliert und was bewusst vereinfacht ist; dieses Offenlegen gehört zur Haltung. Mein Beitrag ist nicht Riff-Expertise, sondern die Übersetzung von Fachliteratur in eine transparente, prüfbare Erfahrung.</p><p class="en">Unlike an explainer video, this piece carries real state over time: two coupled equations from the coral-macroalgae model of Mumby, Hastings and Edwards (2007) produce a genuine tipping point with hysteresis, not an animation that just paints a matching picture. The hook is the one moment when you set the pressure back to where the reef was thriving a minute ago, and it still doesn't come back. A companion page lays out what is modeled and what is deliberately simplified; that disclosure is part of the stance. My contribution isn't reef expertise, but the translation of scientific literature into a transparent, testable experience.</p></div>
+        <div class="p-row"><span class="lbl"><span class="de">Für wen</span><span class="en">Who for</span></span><p class="de">Neugierige Laien in der Simulation, von interessierten Erwachsenen bis Oberstufe und frühes Studium; Institute und Fachleute auf der Begleitseite · Englisch.</p><p class="en">Curious non-experts in the simulation, from interested adults to upper secondary and early university; institutes and experts on the companion page · English.</p></div>
+        <div class="p-links"><a href="https://tobias-schneider-phd.github.io/threshold-reef/" target="_blank" rel="noopener" class="link-coral"><span class="de">Simulation öffnen</span><span class="en">Open the simulation</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a href="https://tobias-schneider-phd.github.io/threshold-reef/model-notes.html" target="_blank" rel="noopener" class="link-muted"><span class="de">Modell-Notizen</span><span class="en">Model notes</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+      </div>
+      <a class="media cz-threshold" href="https://tobias-schneider-phd.github.io/threshold-reef/" target="_blank" rel="noopener" aria-label="Simulation öffnen: Threshold Reef"><!-- TODO ASSET: assets/threshold-reef.jpg (gesundes Riff, Startzustand) -->
+        <img src="assets/threshold-reef.jpg" alt="Threshold Reef: ein gesundes Korallenriff im Startzustand der Simulation, bevor man die Regler verstellt" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover">
+        <span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span>
+      </a>
+    </div>
+
+    <div class="piece flip reveal">
+      <div class="p-text">
+        <div class="p-eyebrow"><span class="pn">04</span> <span class="de">Science-Erklärvideo</span><span class="en">Science explainer video</span> <span class="p-lang">EN</span></div>
+        <h3>Your Body, But on the Moon</h3>
+        <div class="p-row"><span class="lbl"><span class="de">Was</span><span class="en">What</span></span><p class="de">Long-form Science-Erklärvideo. Die Frage ist nicht „Wie bauen wir eine Mondbasis?&#8220;, sondern <strong>„Wie überlebt sie?&#8220;</strong> Erzählt als lebender Organismus: Energie ihr Herzschlag, Luft ihre Lunge, Wasser ihre Blutbahn, Strahlenschutz ihre Haut.</p><p class="en">A long-form science explainer. The question isn't “How do we build a moon base?” but <strong>“How does it stay alive?”</strong> Told as a living organism: energy is its heartbeat, air its lungs, water its bloodstream, radiation shielding its skin.</p></div>
+        <div class="p-row"><span class="lbl"><span class="de">Warum</span><span class="en">Why</span></span><p class="de">Das Stück, in dem das Systemdenken am sichtbarsten wird. Eine einzige Metapher trägt über zehn Minuten die ganze Erklärarchitektur, fundiert auf aktueller Wissenschaft und realen Pilotprojekten, mit sauber gekennzeichneter Spekulation.</p><p class="en">The piece where systems thinking is most visible. A single metaphor carries the entire explanatory architecture across ten minutes, grounded in current science and real pilot projects, with speculation clearly marked as such.</p></div>
+        <div class="p-row"><span class="lbl"><span class="de">Für wen</span><span class="en">Who for</span></span><p class="de">Wissenschaftsaffines Publikum · Englisch.</p><p class="en">A science-minded audience · English.</p></div>
+        <div class="p-links"><a href="https://youtu.be/5BdJQgc4SOA" target="_blank" rel="noopener" class="link-coral"><span class="de">Auf YouTube ansehen</span><span class="en">Watch on YouTube</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+      </div>
+      <a class="media cz-moon" href="https://youtu.be/5BdJQgc4SOA" target="_blank" rel="noopener" aria-label="Video auf YouTube ansehen: Your Body, But on the Moon"><!-- TODO LINK: YouTube-Video Moon -->
+        <img src="assets/moon.jpg" alt="YouTube-Thumbnail: System Alive, die Mondbasis als lebender Organismus" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover">
+        <span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span>
+      </a>
+    </div>
+
+    <div class="piece reveal">
+      <div class="p-text">
+        <div class="p-eyebrow"><span class="pn">05</span> <span class="de">Interaktive Lernhefte</span><span class="en">Interactive learning booklets</span> <span class="p-lang">DE</span> <span class="p-lang">EN</span></div>
+        <h3 class="de">Ökosystem-Detektiv</h3>
+        <h3 class="en">Ecosystem Detective</h3>
+        <div class="p-row"><span class="lbl"><span class="de">Was</span><span class="en">What</span></span><p class="de">Zwei interaktiv ausfüllbare PDF-Lernhefte im Detektiv-Format. Schüler:innen spüren in illustrierten Ökosystem-Szenen versteckte „Eindringlinge&#8220; auf, Tiere und Pflanzen, die nicht dorthin gehören; auf der Auflösungsseite erfährt man dann, warum, mit Anekdoten und Fachwissen im Kontext (Wald auf Deutsch, Ocean auf Englisch).</p><p class="en">Two interactive fill-in PDF booklets in a detective format. In illustrated ecosystem scenes, students track down hidden “intruders”, animals and plants that don't belong there; the solution page then reveals why, with anecdotes and subject knowledge in context (Forest in German, Ocean in English).</p></div>
+        <div class="p-row"><span class="lbl"><span class="de">Warum</span><span class="en">Why</span></span><p class="de">Mein Beleg, dass ich fertige, marktreife Produkte abliefere: Beide Hefte sind auf Eduki veröffentlicht, der Wald-Detektiv trägt zusätzlich das „Best of eduki / Top Quality&#8220;-Siegel. Das Suchen ist nur die Einladung; der eigentliche Lerngewinn steckt im Warum, das die Auflösung liefert, im Wald mit der Pointe, dass ein Neobiot nicht stört, weil er hier nicht leben kann, sondern weil er zu gut lebt und Heimische verdrängt. Die Erklärungen sind fachlich geprüft und auf die jeweilige Stufe zugeschnitten.</p><p class="en">My proof that I deliver finished, market-ready products: both booklets are published on Eduki, and the Forest Detective also carries the “Best of eduki / Top Quality” badge. The searching is only the invitation; the real learning sits in the why that the solution delivers, in the Forest with the twist that an invasive species is a problem not because it can't survive here, but because it thrives too well and crowds out the natives. The explanations are reviewed for accuracy and tailored to each level.</p></div>
+        <div class="p-row"><span class="lbl"><span class="de">Für wen</span><span class="en">Who for</span></span><p class="de">Wald = Biologie Kl. 5–6, DACH · Ocean = Englisch, für CLIL/bilingualen Unterricht.</p><p class="en">Forest = biology, grades 5–6, German-speaking countries · Ocean = English, for CLIL/bilingual teaching.</p></div>
+        <div class="p-links">
+          <a href="https://eduki.com/de/material/2030156/oekosystem-wald-10-detektiv-logikraetsel-zur-angepasstheit-biologie-klasse-5-6" target="_blank" rel="noopener" class="link-coral"><span class="de">Wald-Detektiv ansehen</span><span class="en">View the Forest Detective</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a href="https://eduki.com/de/material/1831226/ocean-detective-marine-biology-logic-puzzles-biologie-auf-englisch-clil" target="_blank" rel="noopener" class="link-coral"><span class="de">Ocean Detective ansehen</span><span class="en">View the Ocean Detective</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-
-        <div class="info-section">
-          <div class="sec-chip">🔗</div>
-          <div class="sec-body">
-            <h3>The Chain Reaction &amp; Tipping Points</h3>
-            <p>These three pressures don't just add up; they <strong>multiply</strong>. A healthy reef shrugs off some warming <em>or</em> some fishing. Combine them and you get a cascade: fewer fish, then more algae, then weaker coral, then even less ability to recover from the next heatwave. Cross the tipping point and the reef flips from coral to algae.</p>
-            <details class="info-more">
-              <summary>More: why damage doesn't undo itself</summary>
-              <p>Here's the part that surprises people: <strong>damage doesn't reverse the way it happened</strong>. Some things bounce back fast: cool the water and bleached coral regains its color within weeks, and when fishing pressure drops, grazing recovers quickly. But an algae takeover is sticky: the algae has to be grazed back down, and coral has to slowly regrow over it, which takes far longer. And in the danger zone, easing off <em>partway</em> isn't enough; the algae state sustains itself, so you often have to push conditions much further back than the point where it collapsed. Scientists call this <strong>hysteresis</strong>: the path down and the path back up are different. It's why prevention beats restoration.</p>
-            </details>
-          </div>
+      </div>
+      <div class="media cz-detektiv" tabindex="0" role="group" aria-roledescription="Bildkarussell" aria-label="Ökosystem-Detektiv, Einblicke in die Lernhefte">
+        <div class="track">
+          <div class="slide"><img src="assets/detektiv-01-wald-cover.jpg" alt="Cover: Tatort Laubmischwald, Biologie Klasse 5 bis 6" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/detektiv-02-wald-fall.jpg" alt="Wald-Detektiv: illustrierte Suchszene mit Eindringlingen" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/detektiv-03-wald-loesung.jpg" alt="Wald-Detektiv: Auflösungsseite mit Begründungen" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/detektiv-03b-ocean-cover.jpg" alt="Cover: Ocean Detective, Science Logic Puzzles, Ages 8 bis 12" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/detektiv-04-ocean-fall.jpg" alt="Ocean Detective: Suchszene Anemone City" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/detektiv-05-ocean-loesung.jpg" alt="Ocean Detective: Auflösungsseite mit Begründungen" loading="lazy" decoding="async"></div>
         </div>
-
-        <div class="info-try">
-          <h3>💡 Try This</h3>
-          <p><strong>1. The cascade.</strong> Set fishing to Protected and pollution to Heavy, and watch the fish keep algae in check despite the pollution. Now slowly raise fishing and watch the badge slide from Healthy to Stressed to Critical as the grazers vanish. Then lower fishing again to bring it back. Notice it takes much longer to recover than it did to collapse, and if you only ease off partway, it may not recover at all. That's the tipping point.</p>
-          <p><strong>2. Why heat needs help.</strong> Leave fishing at Protected and pollution low, then push Temperature all the way up. The corals bleach white, but cool the water again and, with the grazers protected, the reef regains its color and recovers. Now repeat it, but raise fishing and pollution first. The same heat that was survivable becomes a tipping point. That is why warming and local damage are so dangerous together.</p>
+        <button class="c-btn prev" aria-label="Vorheriges Bild"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="c-btn next" aria-label="Nächstes Bild"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button>
+        <div class="c-dots">
+          <button class="on" aria-label="Bild 1"></button><button aria-label="Bild 2"></button><button aria-label="Bild 3"></button><button aria-label="Bild 4"></button><button aria-label="Bild 5"></button><button aria-label="Bild 6"></button>
         </div>
+        <div class="c-count"><b>1</b> / 6</div>
+      </div>
+    </div>
 
-        <div class="info-now">
-          <h3>🌍 Happening Now</h3>
-          <p>This isn't hypothetical. The 2023 to 2025 global bleaching event was the most extensive yet recorded, exposing about <strong>84% of the world's reef area</strong> to bleaching-level heat across all three ocean basins. It showed how repeated marine heatwaves can push reefs into an era of chronic stress. Local protection cannot stop global warming, but protecting grazers and reducing nutrient runoff can help keep reefs more resilient, exactly the levers in your hands here.</p>
+    <div class="piece flip reveal">
+      <div class="p-text">
+        <div class="p-eyebrow"><span class="pn">06</span> <span class="de">YouTube-Kanal</span><span class="en">YouTube channel</span> <span class="p-lang">EN</span></div>
+        <h3>The Science of Being Human</h3>
+        <div class="p-row"><span class="lbl"><span class="de">Was</span><span class="en">What</span></span><p class="de">YouTube-Bildungskanal mit animierten Erklärvideos zur Wissenschaft hinter menschlichem Verhalten: angewandte Psychologie und Neurobiologie in greifbaren visuellen Metaphern.</p><p class="en">An educational YouTube channel with animated explainers on the science behind human behavior: applied psychology and neurobiology in tangible visual metaphors.</p></div>
+        <div class="p-row"><span class="lbl"><span class="de">Warum</span><span class="en">Why</span></span><p class="de">Beleg einer zusätzlichen Fähigkeit: eigenständig produzieren und schneiden, harte Wissenschaft zugänglich erzählen, ohne sie zu verwässern. Rundet das Profil ab.</p><p class="en">Proof of an additional skill: producing and editing on my own, telling hard science in an accessible way without watering it down. It rounds out the profile.</p></div>
+        <div class="p-row"><span class="lbl"><span class="de">Für wen</span><span class="en">Who for</span></span><p class="de">Für alle, die verstehen wollen, warum wir ticken, wie wir ticken · Englisch.</p><p class="en">For anyone curious about what makes us tick · English.</p></div>
+        <div class="p-links"><a href="https://www.youtube.com/@TheScienceofBeingHuman-44" target="_blank" rel="noopener" class="link-coral"><span class="de">Kanal ansehen</span><span class="en">View the channel</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+      </div>
+      <div class="media cz-sobh" tabindex="0" role="group" aria-roledescription="Bildkarussell" aria-label="The Science of Being Human, Video-Thumbnails">
+        <div class="track">
+          <div class="slide"><img src="assets/sobh-01.jpg" alt="Thumbnail: Fake Rest" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/sobh-02.jpg" alt="Thumbnail: Can't Say No" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/sobh-03.jpg" alt="Thumbnail: It's Not Laziness" loading="lazy" decoding="async"></div>
+          <div class="slide"><img src="assets/sobh-04.jpg" alt="Thumbnail: Stop the Noise" loading="lazy" decoding="async"></div>
         </div>
-
-        <p class="info-fullnotes"><strong>Want to look under the hood?</strong><br>Read the full <a href="science.html">model notes</a> for the assumptions, equations, verification and sources behind this simulation.</p>
-
-        <button id="close-info-btn">Back to the Reef</button>
+        <button class="c-btn prev" aria-label="Vorheriges Bild"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="c-btn next" aria-label="Nächstes Bild"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button>
+        <div class="c-dots">
+          <button class="on" aria-label="Bild 1"></button><button aria-label="Bild 2"></button><button aria-label="Bild 3"></button><button aria-label="Bild 4"></button>
+        </div>
+        <div class="c-count"><b>1</b> / 4</div>
       </div>
     </div>
 
   </div>
+</section>
 
-  <script>
-  (function() {
-    'use strict';
+<svg class="wave" viewBox="0 0 1440 70" preserveAspectRatio="none"><path fill="#FCF5EC" d="M0,30 C360,0 720,70 1080,40 C1260,25 1380,20 1440,32 L1440,70 L0,70 Z"/></svg>
 
-    // ==========================================
-    // STATE
-    // ==========================================
-    const state = {
-      // temperature/fishing/nutrients are the EFFECTIVE (eased) values the model & narration
-      // read. The *Target fields are where the slider thumb actually sits — set instantly so
-      // the thumb follows the finger, while the effective value glides toward it (easeSliders).
-      temperature: 15, fishing: 15, nutrients: 10,
-      tempTarget: 15, fishTarget: 15, nutrTarget: 10,
-      coralHealth: 100, fishPopulation: 100, algaeCover: 0,
-      started: false, currentNarration: '',
-      // Narration/badge pacing + recovery-trend tracking (used in updateHUD):
-      currentNarrationPri: -1, narrShownAt: 0,   // dwell timer so messages don't race past
-      badgeCls: '', badgeShownAt: 0,             // dwell timer so the middle state stays readable
-      coralPrev: 100, coralTrend: 0              // smoothed coral trend → tells recovery from decline
-    };
+<section class="about" id="kontakt">
+  <div class="wrap">
+    <div class="portrait reveal"><img src="assets/portrait.jpg" alt="Porträt von Tobias Schneider"></div>
+    <div class="reveal">
+      <span class="eyebrow de">Über mich</span>
+      <span class="eyebrow en">About me</span>
+      <h2 class="de">Promovierter Biologe, der Lernwelten und Simulationen baut.</h2>
+      <h2 class="en">A biologist (PhD) who builds learning worlds and simulations.</h2>
+      <p class="de">Ich bin promovierter Molekularbiologe, aber meine Arbeit kreist heute stärker um ganze Ökosysteme als um einzelne Moleküle. An der Universität Bremen und am Leibniz-Zentrum für Marine Tropenforschung (ZMT) habe ich tropische Meeresökologie studiert, mit Schwerpunkt auf Korallenriffen. Was mich an der Biologie immer am meisten gepackt hat, ist nicht das Einzelteil, sondern das Zusammenspiel: wie aus Molekülen Zellen werden, aus Zellen Organismen, aus Organismen ganze Ökosysteme. Lebende Systeme, in denen ein Eingriff an einer Stelle überall nachhallt. Diese Faszination ist der rote Faden durch alles, was ich gestalte, vom Korallenriff bis zur Mondbasis.</p>
+      <p class="en">I'm a molecular biologist by training (PhD), but my work today revolves more around whole ecosystems than around single molecules. At the University of Bremen and the Leibniz Centre for Tropical Marine Research (ZMT), I studied tropical marine ecology, with a focus on coral reefs. What has always gripped me most about biology isn't the single part, but the interplay: how molecules become cells, cells become organisms, organisms become whole ecosystems. Living systems, where an intervention in one place echoes everywhere. That fascination is the thread running through everything I design, from a coral reef to a moon base.</p>
+      <p class="de">Erklären gehört dazu, das mache ich klar und sauber. Aber wo es ums Abwägen geht, höre ich da nicht auf, sondern baue einen Ort zum Anwenden: ein Riff, dessen Schutz man unter einer Hitzewelle selbst steuert, eine Verhandlung, die man gegen einen widerstrebenden Experten führt, oder eine echte Simulation, in der man ein Korallenriff über seinen Kipppunkt drückt und erlebt, dass es nicht zurückkommt. Man entscheidet, sieht die Folgen, und genau dieses Abwägen lässt sich nicht auswendig lernen.</p>
+      <p class="en">Explaining is part of it, and I do that clearly and cleanly. But where judgment is involved, I don't stop there; I build a place to apply it: a reef whose protection you steer yourself through a heat wave, a negotiation you carry out against a reluctant expert, or a genuine simulation in which you push a coral reef past its tipping point and see that it doesn't come back. You decide, you see the consequences, and that kind of judgment can't be memorized.</p>
+      <p class="de">Wenn du willst, dass Lernende ein Thema erleben statt es abzuarbeiten, dann lass uns reden.</p>
+      <p class="en">If you want learners to experience a topic rather than just work through it, let's talk.</p>
+      <div class="contact-row">
+        <a href="mailto:tobi.schneider44@gmail.com" class="btn"><span class="de">Schreib mir</span><span class="en">Get in touch</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/in/tobias-schneider-phd-a42b86184/" target="_blank" rel="noopener" class="btn btn-ghost">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-    const fishState = [];
+<footer>
+  <div class="brand"><span class="dot"></span> Tobias Schneider</div>
+  <span class="de">Learning Experience Designer · promovierter Biologe</span><span class="en">Learning Experience Designer · Biologist (PhD)</span><br>
+  <span style="opacity:.7">© 2026 Tobias Schneider</span>
+</footer>
 
-    // ==========================================
-    // ODE MODEL STATE  (Mumby et al. 2007)
-    // ==========================================
-    // C and M are fractional coverages (0..1). T = 1 − C − M (turf, implicit).
-    // These are the true dynamic state variables; they are integrated over time.
-    const model = {
-      C: 0.76,   // coral coverage  — near coral-equilibrium at default sliders
-      M: 0.02,   // macroalgae coverage — starts at the background seed level (see seedM)
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Bild vergrößert">
+  <button class="lb-close" aria-label="Schließen"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <img src="" alt="">
+</div>
 
-      // Mumby 2007 base parameters — slider-mapping overrides these each tick
-      a:     0.10,   // macroalgae overgrowth rate on coral
-      gamma: 0.80,   // macroalgae spread rate onto turf
-      r:     1.0,    // coral growth/recruitment rate on turf
-      d:     0.24,   // coral mortality rate (baseline)
-      g:     0.5,    // grazing rate (herbivorous fish)
-
-      // Background macroalgae supply — larvae/spores constantly drift onto the reef from
-      // elsewhere. THIS IS THE FIX for the "M sticks at 0" bug. In dM/dt every term is
-      // multiplied by M, so M = 0 is an absorbing state: once M decays to numerical zero
-      // (which it does within ~2 s at healthy settings) NO slider can ever revive it, the
-      // algae basin becomes unreachable and the tipping point vanishes from normal play.
-      // We floor M at this small value so the integrator stays in the model's valid domain.
-      // It sits far below the algae-glow onset (M = 0.15), so a healthy reef still looks
-      // clean. Tunable: raise it a touch if the cliff is too hard to reach; lower it if a
-      // healthy reef looks too algal.
-      seedM: 0.02,
-
-      // Heat-stress mortality pulse — re-arms while temperature stays above the threshold,
-      // so sustained heat produces ongoing mortality (not a single permanent parameter change)
-      bleachPulse: 0,   // countdown in animation frames
-      bleachD:     0,   // extra mortality (added to d) while the pulse is active
-    };
-
-    // ==========================================
-    // NARRATION RULES (priority-ranked)
-    // ==========================================
-    const NARRATION = [
-      { id:'no_return', test:s=>s.algaeCover>50&&s.coralHealth<20, msg:'Algae now holds the reef. Bringing it back takes strong grazing and a long time, not a quick change', emoji:'💔', pri:105 },
-      // Genuine slow recovery from collapse: stressors are all eased and the algae has
-      // receded, but coral is still low and crawls back slowly. Without this the HUD stays
-      // on 'crisis' for the whole climb and the learner assumes the reef is dead and hits
-      // reset. Gated on conditions, not trend: during the slow climb the coral trend is
-      // ~0, so a trend gate would never fire here. Outranks crisis so the patient, accurate
-      // message wins while the reef is genuinely coming back.
-      { id:'recovering_slow', test:s=>s.coralHealth<40&&s.algaeCover<45&&s.temperature<45&&s.fishing<45&&s.nutrients<45, msg:'Conditions favor coral again. Regrowth after a collapse is slow, so give it time', emoji:'🌱', pri:102 },
-      { id:'crisis', test:s=>s.coralHealth<25, msg:'Coral cover has collapsed; the reef is close to dying', emoji:'🚨', pri:100 },
-      { id:'fish_shield', test:s=>s.fishPopulation>65&&s.nutrients>55&&s.algaeCover<25, msg:'Even with heavy pollution, the fish eat algae faster than it grows', emoji:'✨', pri:95 },
-      { id:'tipping', test:s=>s.algaeCover>25&&s.algaeCover<=50&&s.coralHealth<45, msg:'Tipping point near; algae is taking hold', emoji:'⚠️', pri:92 },
-      { id:'cascade', test:s=>s.fishPopulation<40&&s.algaeCover>40, msg:'Too few fish left; algae is taking over', emoji:'⚠️', pri:90 },
-      // Heat with herbivory INTACT: corals bleach, but grazers buffer the reef. This is the
-      // real lesson — warming alone is survivable *because* fishing and pollution are managed.
-      // Outranks bleach_severe so the hopeful, accurate message wins when the buffer is holding.
-      { id:'heat_buffered', test:s=>s.temperature>60&&s.coralHealth>45&&s.fishPopulation>60&&s.algaeCover<20, msg:'Bleaching in the heat, but the fish hold algae back. Cool the water and the reef recovers', emoji:'🌡️', pri:85 },
-      { id:'bleach_severe', test:s=>s.temperature>70, msg:'Severe heat; the coral is bleaching and starving', emoji:'🌡️', pri:80 },
-      { id:'algae_dominant', test:s=>s.algaeCover>65, msg:'Algae now blankets the reef and blocks the light coral needs', emoji:'🌿', pri:75 },
-      { id:'bleach_mild', test:s=>s.temperature>42&&s.temperature<=70, msg:'The water is warming; the coral is bleaching', emoji:'🌡️', pri:60 },
-      { id:'algae_spread', test:s=>s.algaeCover>35&&s.algaeCover<=65, msg:'Algae is spreading, crowding out the coral', emoji:'🌿', pri:55 },
-      { id:'fish_decline', test:s=>s.fishing>55&&s.fishPopulation<50, msg:'Overfishing is removing the reef\'s lawnmowers', emoji:'🎣', pri:50 },
-      { id:'nutrient_flood', test:s=>s.nutrients>55, msg:'Nutrient runoff is feeding the algae like fertilizer', emoji:'🏭', pri:45 },
-      // Genuine recovery: coral is actually CLIMBING (positive trend) while stressors are low.
-      // Trend-gated so it no longer fires just because coral sits in a band — that was the bug
-      // where pushing fishing up wrongly showed a "temperatures cooling" message.
-      { id:'recovery', test:s=>s.coralTrend>0.15&&s.coralHealth>40&&s.coralHealth<82&&s.temperature<45&&s.fishing<45&&s.nutrients<45, msg:'The reef is recovering; coral is slowly regrowing. Hold steady', emoji:'🌱', pri:42 },
-      { id:'fish_healthy', test:s=>s.fishing<20&&s.fishPopulation>80, msg:'Protected waters; plenty of fish keep the algae down', emoji:'🐠', pri:40 },
-      // Mid fishing: grazers thinning but algae still held — honest causal message for the zone
-      // that previously fell through to the false "temperatures cooling" line.
-      { id:'grazers_thinning', test:s=>s.fishing>=30&&s.fishing<=60&&s.fishPopulation<70&&s.algaeCover<25&&s.coralHealth>45, msg:'Fewer fish grazing now; less holds the algae back', emoji:'🐟', pri:38 },
-      { id:'healthy', test:s=>s.coralHealth>70&&s.algaeCover<15&&s.fishPopulation>65, msg:'The reef is in balance and thriving', emoji:'🌊', pri:10 },
-      // Fallback so the HUD is never blank and never shows a stale message from a state we left.
-      { id:'steady', test:s=>true, msg:'The reef holds steady for now', emoji:'🌊', pri:1 },
-    ];
-
-    // ==========================================
-    // DOM
-    // ==========================================
-    const $ = id => document.getElementById(id);
-    const el = {
-      tempSlider: $('temp-slider'), fishSlider: $('fish-slider'), nutrientSlider: $('nutrient-slider'),
-      controls: $('controls'), introOverlay: $('intro-overlay'), infoOverlay: $('info-overlay'),
-      startBtn: $('start-btn'), resetBtn: $('reset-btn'), infoBtn: $('info-btn'),
-      closeInfoBtn: $('close-info-btn'),
-      hudBadge: $('hud-badge'), hudNarration: $('hud-narration'), reefHud: $('reef-hud'),
-      corals: document.querySelectorAll('.coral-group'),
-      fishEls: document.querySelectorAll('.fish'),
-      debugOverlay: $('debug-overlay'),
-      pollutionHaze: $('pollution-haze'),
-      reefContainer: $('reef-container'),
-    };
-
-    // ==========================================
-    // UTILS
-    // ==========================================
-    const clamp = (v,lo,hi) => Math.max(lo, Math.min(hi, v));
-    const lerp = (a,b,t) => a + (b-a) * t;
-    const mapR = (v,a,b,c,d) => c + (d-c) * ((v-a) / (b-a));
-    // Tint the slider groove up to the thumb (purely visual; min=0 max=100 so value == percent).
-    const setSliderFill = s => s.style.setProperty('--fill', s.value + '%');
-
-    // ==========================================
-    // THREE-ZONE BLEACHING COLOR
-    // ==========================================
-    function coralColor(baseH, baseS, baseL, temp) {
-      if (temp <= 35) {
-        return `hsl(${baseH}, ${baseS}%, ${baseL}%)`;
-      } else if (temp <= 60) {
-        const t = (temp - 35) / 25; 
-        const s = baseS * (1 - t * 0.65); 
-        const l = baseL + (88 - baseL) * t * 0.6; 
-        return `hsl(${baseH}, ${s}%, ${l}%)`;
-      } else {
-        const t = (temp - 60) / 40; 
-        const s = baseS * 0.35 * (1 - t * 0.85); 
-        const l = baseL + (94 - baseL) * (0.6 + t * 0.4); 
-        return `hsl(${baseH}, ${Math.max(s, 3)}%, ${Math.min(l, 94)}%)`;
-      }
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  // Sprache umschalten (DE = Standard, #en = direkter englischer Einstieg)
+  (function(){
+    const btns=[...document.querySelectorAll('.lang button')];
+    function setLang(l){
+      document.documentElement.lang=l;
+      btns.forEach(b=>b.classList.toggle('on', b.dataset.l===l));
     }
-
-    // ==========================================
-    // FISH SYSTEM
-    // ==========================================
-    function initFish() {
-      el.fishEls.forEach((f, i) => {
-        const bx = parseFloat(f.dataset.baseX) || 100 + i * 70;
-        const by = parseFloat(f.dataset.baseY) || 120 + (i%3) * 40;
-        const sp = parseFloat(f.dataset.speed) || 0.8 + Math.random() * 0.4;
-        const am = parseFloat(f.dataset.amp) || 12;
-        fishState[i] = {
-          x: bx, y: by, baseY: by,
-          vx: sp * (Math.random() > 0.5 ? 1 : -1),
-          speed: sp, amp: am,
-          phase: Math.random() * Math.PI * 2,
-          vis: true, targetVis: true
-        };
-        f.setAttribute('transform', `translate(${bx},${by})`);
-      });
-    }
-
-    function updateFish(dt) {
-      const W = 800, M = 50, FADE = 80;  // FADE: edge zone (viewBox units) over which fish dissolve out/in at the wrap
-      const visCount = Math.ceil((state.fishPopulation / 100) * fishState.length);
-
-      fishState.forEach((fs, i) => {
-        const f = el.fishEls[i];
-        fs.targetVis = i < visCount;
-
-        if (fs.targetVis && !fs.vis) {
-          // Returning fish re-enter from the off-screen edge they face, so the edge-fade carries them in.
-          fs.vis = true;
-          fs.x = fs.vx >= 0 ? -M : W + M;
-        } else if (!fs.targetVis && fs.vis) {
-          // Fish should leave: swim off to the right at a FIXED boosted speed. Must be
-          // idempotent — this branch runs every frame while the fish is exiting, so the old
-          // `fs.vx = Math.abs(fs.vx) * 1.3` compounded each frame and exploded the velocity
-          // (the "fish zooming across the screen" bug). Basing it on fs.speed fixes that.
-          fs.vx = Math.abs(fs.speed) * 1.8;
-        }
-
-        fs.x += fs.vx * dt * 60;
-        fs.phase += dt * 2;
-        const cy = fs.baseY + Math.sin(fs.phase) * fs.amp;
-
-        if (fs.targetVis) {
-          if (fs.x > W + M) fs.x = -M;
-          else if (fs.x < -M) fs.x = W + M;
-        } else if (fs.x > W + M * 2) {
-          fs.vis = false;
-          f.style.opacity = '0';
-          fs.x = -M;
-          fs.vx = Math.abs(fs.speed);
-        }
-
-        // Soft edge fade: opacity tapers to 0 within FADE of either stage edge, so fish dissolve
-        // out and re-emerge instead of hard-popping when they wrap. Driven per frame (smooth at
-        // 60 fps), so no CSS transition needed; visual only, no model state involved.
-        if (fs.vis) {
-          const dEdge = Math.min(fs.x + M, (W + M) - fs.x);
-          f.style.opacity = String(Math.max(0, Math.min(1, dEdge / FADE)));
-        }
-
-        const sx = fs.vx >= 0 ? 1 : -1;
-        f.setAttribute('transform', `translate(${fs.x},${cy}) scale(${sx},1)`);
-      });
-    }
-
-    // ==========================================
-    // CORAL & ALGAE VISUALS
-    // ==========================================
-    function updateCorals() {
-      const algae = state.algaeCover;
-
-      // effectiveTemp combines real temperature, bleach pulse, and coral mortality.
-      // During a bleach pulse (bleachPulse > 0) corals turn visibly white as an event.
-      // After the pulse, low model.C keeps them pale (dead coral doesn't recover its color
-      // just because temperature dropped — that would require actual coral regrowth via ODE).
-      let effectiveTemp = state.temperature;
-      if (model.bleachPulse > 0) {
-        effectiveTemp = Math.max(effectiveTemp, 60 + (model.bleachPulse / 90) * 35);
-      }
-      effectiveTemp = Math.max(effectiveTemp, (1 - model.C) * 75);
-
-      el.corals.forEach(c => {
-        const h = parseFloat(c.dataset.baseHue);
-        const s = parseFloat(c.dataset.baseSat);
-        const l = parseFloat(c.dataset.baseLight);
-        const color = coralColor(h, s, l, effectiveTemp);
-
-        c.querySelectorAll('.coral-branch').forEach(b => b.setAttribute('stroke', color));
-        c.querySelectorAll('.coral-tip').forEach(t => t.setAttribute('fill', color));
-        c.querySelectorAll('.coral-body').forEach(b => b.setAttribute('fill', color));
-
-        const bumpColor = coralColor(h, Math.max(s - 10, 0), Math.max(l - 12, 20), effectiveTemp);
-        c.querySelectorAll('.coral-bump').forEach(b => b.setAttribute('fill', bumpColor));
-
-        // Algae glow: onset at M = 0.15, full intensity at M = 0.80.
-        // At healthy equilibrium (M ≈ 0.01) no glow appears.
-        const glow = c.querySelector('.algae-glow');
-        if (glow) glow.setAttribute('opacity', algae < 15 ? 0 : clamp((algae - 15) / 65, 0, 1) * 0.65);
-
-        // Algae overlay: onset at M = 0.20, fronds only once algae truly dominant (M > 0.40).
-        const algaeOn = c.querySelector('.algae-on');
-        if (algaeOn) {
-          const baseOp = algae < 20 ? 0 : Math.min(clamp((algae - 20) / 60, 0, 1) * 1.15, 1);
-          algaeOn.setAttribute('opacity', baseOp);
-          algaeOn.querySelectorAll('.algae-frond').forEach(fr => {
-            fr.setAttribute('opacity', algae < 40 ? 0 : mapR(clamp(algae, 40, 85), 40, 85, 0, 1));
-          });
-        }
-      });
-    }
-
-    // Nutrient pollution → murky water. Opacity scales with the eased nutrient level: crystal
-    // clear at the default low setting, visibly green-murky toward "Heavy". Subtle on purpose so
-    // it doesn't swamp the coral/bleach signals. This gives the Pollution lever its own visual
-    // cue, like bleaching does for Temperature and departing fish do for Fishing.
-    function updateWaterHaze() {
-      const op = clamp(mapR(state.nutrients, 20, 100, 0, 0.22), 0, 0.22);
-      el.pollutionHaze.setAttribute('opacity', op.toFixed(3));
-      // Tint the letterbox margins (container background) with the same murky overlay as the
-      // in-scene haze, so on wide screens the sides green up in step with the stage instead of
-      // staying blue and showing a hard seam. Two stacked gradients = the clean water gradient
-      // with the gMurk colours over it at the same opacity, matching the SVG composite. Visual only.
-      el.reefContainer.style.background =
-        `linear-gradient(180deg, rgba(95,125,57,${op}) 0%, rgba(63,90,46,${op}) 55%, rgba(41,58,34,${op}) 100%),`
-        + `linear-gradient(180deg, #2a94b5 0%, #18658a 25%, #0c3560 55%, #091524 100%)`;
-    }
-
-    // ==========================================
-    // STATUS & NARRATION
-    // ==========================================
-    function updateHUD() {
-      const h = state.coralHealth;
-      const a = state.algaeCover;
-      const now = performance.now();
-
-      // Smoothed coral trend (this runs ~every 0.3 s). Lets narration tell genuine recovery
-      // (coral climbing) apart from decline (coral falling) instead of guessing from the raw
-      // level — that guess was the bug behind the false "temperatures cooling" message. The
-      // EMA keeps it from twitching on per-frame noise.
-      const delta = h - state.coralPrev;
-      state.coralTrend = state.coralTrend * 0.6 + delta * 0.4;
-      state.coralPrev = h;
-
-      // --- BADGE ---------------------------------------------------------------
-      // A white, heat-stressed reef is NOT "Healthy" even if coral cover is still decent
-      // (herbivory is holding the line). bleaching = corals are painted white by coralColor().
-      const bleaching = model.bleachPulse > 0 || state.temperature > 60;
-
-      let txt, cls;
-      if (h < 25 || a > 50)  { txt = '🚨 Critical';   cls = 'critical'; }   // reef dying / algae has taken over
-      else if (a >= 20)      { txt = '⚠️ Stressed';   cls = 'stressed'; }   // macroalgae gaining ground
-      else if (bleaching)    { txt = '🌡️ Bleaching';  cls = 'bleaching'; }  // corals white from heat, herbivory still buffering
-      else if (h > 50)       { txt = '🌊 Healthy';    cls = 'healthy'; }
-      else                   { txt = '⚠️ Stressed';   cls = 'stressed'; }   // coral knocked down, no clear cause above
-
-      // Dwell: hold a badge state at least BADGE_DWELL ms before switching, so a fast slider
-      // drag can't flash Healthy→Stressed→Critical in a frame — the middle state stays on
-      // screen long enough to read. First paint shows immediately.
-      const BADGE_DWELL = 1200;
-      if (cls !== state.badgeCls && (state.badgeCls === '' || now - state.badgeShownAt >= BADGE_DWELL)) {
-        state.badgeCls = cls;
-        state.badgeShownAt = now;
-        el.hudBadge.textContent = txt;
-        el.hudBadge.className = cls;
-      }
-
-      // --- NARRATION -----------------------------------------------------------
-      let best = null;
-      for (const r of NARRATION) {
-        if (r.test(state) && (!best || r.pri > best.pri)) best = r;
-      }
-
-      // Same idea, longer dwell — a full sentence needs time to read, so messages no longer
-      // race past at the tipping point. best is never null (the 'steady' fallback always
-      // matches), so the HUD is never blank and never holds a stale message from a left state.
-      const NARR_DWELL = 2600;
-      if (best.id !== state.currentNarration &&
-          (state.currentNarration === '' || now - state.narrShownAt >= NARR_DWELL)) {
-        state.currentNarration = best.id;
-        state.currentNarrationPri = best.pri;
-        state.narrShownAt = now;
-        el.hudNarration.innerHTML = `<span class="narr-emoji">${best.emoji}</span>${best.msg}`;
-        el.hudNarration.classList.add('visible');
-      }
-    }
-
-    // ==========================================
-    // TEMP SLIDER STYLE
-    // ==========================================
-    function updateTempStyle() {
-      const t = state.tempTarget;   // thumb colour reflects where the thumb is, not the eased value
-      el.tempSlider.classList.remove('warm','hot');
-      if (t > 60) el.tempSlider.classList.add('hot');
-      else if (t > 35) el.tempSlider.classList.add('warm');
-    }
-
-    // ==========================================
-    // ECOSYSTEM MODEL  (Mumby et al. 2007)
-    // ==========================================
-
-    // Map slider positions to ODE parameters.
-    // Call this once on start and after every slider move.
-    function applySliders() {
-      const fishing   = state.fishing;     // 0..100
-      const nutrients = state.nutrients;   // 0..100
-      const temp      = state.temperature; // 0..100
-
-      // More fishing → fewer herbivore fish → lower grazing pressure
-      model.g = (1 - fishing / 100) * 0.9 + 0.02;   // range approx 0.02..0.92
-
-      // More nutrients → macroalgae grows and spreads faster
-      model.a     = 0.10 + (nutrients / 100) * 0.20;  // 0.10..0.30
-      model.gamma = 0.80 + (nutrients / 100) * 0.40;  // 0.80..1.20
-
-      // Higher temperature → elevated baseline coral mortality
-      model.d = 0.24 + (temp / 100) * 0.15;           // 0.24..0.39
-
-      // Bleaching threshold: while temperature stays above 60/100 the heat-stress mortality
-      // pulse re-arms each time it expires, so sustained heat keeps adding mortality. It is
-      // NOT a single one-time event; prolonged heat continues to damage coral.
-      if (temp > 60 && model.bleachPulse === 0) {
-        model.bleachPulse = 90;   // ~3 seconds at 30 fps, then re-arms if still above threshold
-        model.bleachD     = 0.8;  // extra mortality while heat-stressed
-      }
-    }
-
-    // Advance the ODE by one Euler step.
-    // dt: model-time per frame (tune ODE_DT in loop(); not wall-clock seconds).
-    function stepModel(dt) {
-      const { C, M, a, gamma, r, g } = model;
-      const T = Math.max(0, 1 - C - M);         // turf = remaining reef floor
-      const d_eff = model.d + model.bleachD;     // total coral mortality this tick
-
-      // Mumby 2007 differential equations:
-      //   dM/dt = a·M·C  −  g·M/(M+T)  +  γ·M·T
-      //   dC/dt = r·T·C  −  d·C        −  a·M·C
-      const dM = a*M*C - (g*M)/(M + T + 1e-9) + gamma*M*T;
-      const dC = r*T*C - d_eff*C               - a*M*C;
-
-      // Floor M at the background seed (model.seedM) instead of 0, so macroalgae can always
-      // regrow once conditions turn against the coral. Flooring at 0 was the bug.
-      model.M = Math.max(model.seedM, Math.min(1, M + dM * dt));
-      model.C = Math.max(0, Math.min(1, C + dC * dt));
-
-      // Enforce coverage sum ≤ 1 (prevents numerical overshoot)
-      if (model.C + model.M > 1) {
-        model.M = Math.max(0, model.M - (model.C + model.M - 1));
-      }
-
-      // Bleaching pulse countdown
-      if (model.bleachPulse > 0) {
-        model.bleachPulse--;
-        if (model.bleachPulse === 0) model.bleachD = 0;
-      }
-
-      // Bridge: write ODE output into the display-state variables (0..1 → 0..100).
-      // The visual layer reads these — it is not changed.
-      state.coralHealth    = model.C * 100;
-      state.algaeCover     = model.M * 100;
-      state.fishPopulation = model.g * 100;  // grazing rate ∝ visible herbivore fish
-    }
-
-    // ==========================================
-    // ANIMATION LOOP
-    // ==========================================
-    let lastT = 0, narrTimer = 0;
-    const ODE_DT = 0.08;  // Euler step size in model-time per frame (tunable)
-
-    // Ease the effective slider values toward their targets at a capped rate. This is the
-    // "lever resistance": yanking a slider to the end ramps the effect in over ~SLIDER_RATE,
-    // instead of snapping. Small nudges feel instant; full sweeps take ~1.8 s. It also stops
-    // the fish from popping in/out abruptly and keeps narration paced with the real reef state.
-    const SLIDER_RATE = 55;  // units per second (0..100 scale); higher = less resistance
-    function easeSliders(dt) {
-      const step = SLIDER_RATE * dt;
-      const ease = (cur, tgt) => {
-        const diff = tgt - cur;
-        if (Math.abs(diff) <= step) return tgt;
-        return cur + Math.sign(diff) * step;
-      };
-      state.temperature = ease(state.temperature, state.tempTarget);
-      state.fishing     = ease(state.fishing,     state.fishTarget);
-      state.nutrients   = ease(state.nutrients,   state.nutrTarget);
-    }
-
-    function loop(t) {
-      if (!state.started) return;
-      const realDt = Math.min((t - lastT) / 1000, 0.1);  // wall-clock seconds for fish animation
-      lastT = t;
-
-      easeSliders(realDt);  // glide effective pressures toward the slider targets
-      applySliders();       // re-derive ODE parameters from the (eased) effective values
-      stepModel(ODE_DT);  // advance ODE — writes into state.coralHealth / .algaeCover / .fishPopulation
-
-      // DEBUG — temporär, vor Release entfernen
-      const T = Math.max(0, 1 - model.C - model.M);
-      el.debugOverlay.textContent =
-        '⚠ DEBUG — temporär, vor Release entfernen\n' +
-        `C          ${model.C.toFixed(3)}\n` +
-        `M          ${model.M.toFixed(3)}\n` +
-        `T (1−C−M)  ${T.toFixed(3)}\n` +
-        `g          ${model.g.toFixed(3)}\n` +
-        `d_eff      ${(model.d + model.bleachD).toFixed(3)}\n` +
-        `bleachPulse ${model.bleachPulse}`;
-
-      updateFish(realDt);
-      updateCorals();
-      updateWaterHaze();
-
-      narrTimer += realDt;
-      if (narrTimer > 0.3) { narrTimer = 0; updateHUD(); }
-
-      requestAnimationFrame(loop);
-    }
-
-    // ==========================================
-    // EVENTS
-    // ==========================================
-    // The Science nudge: after the user has played a little (a few slider moves or ~30 s), the
-    // button starts its gentle blink. It never blinks from load, and stops for good once opened.
-    let scienceSeen = false, scienceNudged = false, sliderMoves = 0;
-    function nudgeScience() {
-      if (scienceSeen || scienceNudged) return;
-      scienceNudged = true;
-      el.infoBtn.classList.add('nudge');
-    }
-
-    function onSlider(e) {
-      const v = parseInt(e.target.value, 10);
-      e.target.style.setProperty('--fill', v + '%');   // tint the groove up to the thumb
-      // Set only the TARGET — the thumb follows the finger instantly, but easeSliders() glides
-      // the effective value toward it (the lever has inertia). applySliders runs in the loop.
-      if (e.target === el.tempSlider) { state.tempTarget = v; updateTempStyle(); }
-      else if (e.target === el.fishSlider) { state.fishTarget = v; }
-      else if (e.target === el.nutrientSlider) { state.nutrTarget = v; }
-      if (++sliderMoves >= 4) nudgeScience();
-    }
-
-    function onStart() {
-      state.started = true;
-      el.introOverlay.classList.add('hidden');
-      el.introOverlay.setAttribute('aria-hidden', 'true');  // drop the dismissed intro out of tab order and the a11y tree
-      el.introOverlay.inert = true;
-      el.controls.classList.add('visible');
-      initFish();
-      applySliders();  // initialise ODE parameters from default slider positions
-      lastT = performance.now();
-      requestAnimationFrame(loop);
-      setTimeout(() => el.tempSlider.focus(), 500);
-      setTimeout(nudgeScience, 30000);  // if they haven't opened The Science by ~30 s, nudge gently
-    }
-
-    function onReset() {
-      state.temperature = 15; state.fishing = 15; state.nutrients = 10;
-      state.tempTarget = 15; state.fishTarget = 15; state.nutrTarget = 10;  // snap targets too (no glide on reset)
-      state.currentNarration = '';
-
-      // Reset ODE state to initial coral-dominated conditions
-      model.C = 0.76; model.M = 0.02;
-      model.bleachPulse = 0; model.bleachD = 0;
-
-      el.tempSlider.value = 15; el.fishSlider.value = 15; el.nutrientSlider.value = 10;
-      el.hudNarration.classList.remove('visible');
-      updateTempStyle();
-      [el.tempSlider, el.fishSlider, el.nutrientSlider].forEach(setSliderFill);
-      applySliders();  // re-derive ODE parameters from reset slider positions
-
-      // Sync display state from ODE state
-      state.coralHealth    = model.C * 100;
-      state.algaeCover     = model.M * 100;
-      state.fishPopulation = model.g * 100;
-
-      fishState.forEach((fs, i) => {
-        fs.targetVis = true; fs.vis = true;
-        fs.vx = fs.speed * (Math.random() > 0.5 ? 1 : -1);
-        el.fishEls[i].style.opacity = '1';
-      });
-
-      updateCorals(); updateHUD(); updateWaterHaze();
-    }
-
-    function onShowInfo() {
-      scienceSeen = true;
-      el.infoBtn.classList.remove('nudge');
-      el.infoOverlay.removeAttribute('aria-hidden');  // expose to tab order and the a11y tree while open
-      el.infoOverlay.inert = false;
-      el.infoOverlay.classList.add('visible');
-      el.infoOverlay.scrollTop = 0;   // always open at the top of the notes, not scrolled down
-      el.infoOverlay.focus();         // move focus into the dialog itself, not onto the bottom button
-    }
-    function onCloseInfo() { el.infoOverlay.classList.remove('visible'); el.infoOverlay.setAttribute('aria-hidden', 'true'); el.infoOverlay.inert = true; el.infoBtn.focus(); }
-
-    function onKey(e) {
-      if (e.key === 'Escape') {
-        if (el.infoOverlay.classList.contains('visible')) onCloseInfo();
-      }
-    }
-
-    // ==========================================
-    // INIT
-    // ==========================================
-    function init() {
-      try {
-        // Set ODE parameters from default slider values, then sync display state
-        applySliders();
-        state.coralHealth    = model.C * 100;
-        state.algaeCover     = model.M * 100;
-        state.fishPopulation = model.g * 100;
-
-        [el.tempSlider, el.fishSlider, el.nutrientSlider].forEach(s => s.addEventListener('input', onSlider));
-        [el.tempSlider, el.fishSlider, el.nutrientSlider].forEach(setSliderFill);
-        el.startBtn.addEventListener('click', onStart);
-        el.resetBtn.addEventListener('click', onReset);
-        el.infoBtn.addEventListener('click', onShowInfo);
-        el.closeInfoBtn.addEventListener('click', onCloseInfo);
-        document.addEventListener('keydown', onKey);
-        updateCorals(); updateHUD(); updateWaterHaze();
-        el.startBtn.focus();
-      } catch (err) {
-        document.body.innerHTML = `<div style="padding:40px;text-align:center;color:#ff6b6b;"><h2>Something went wrong</h2><p style="color:#aaa;">${err.message}</p></div>`;
-      }
-    }
-
-    document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
-
-    // ==========================================
-    // BISTABILITY VERIFICATION  (console tool)
-    // ==========================================
-    // Run verifyBistability() from the browser console (F12 → Console).
-    //
-    // Method: at each g-value, the ODE is integrated from TWO starting conditions
-    // to equilibrium (5000 ticks). Bistability is confirmed when both starting
-    // conditions lead to DIFFERENT stable endpoints in the same g-range.
-    //
-    // Hysteresis: recovery from the algae state needs HIGHER grazing than the
-    // original collapse.  Success criterion: g_backward_tip > g_forward_tip.
-    function verifyBistability() {
-      const TICKS  = 5000;
-      const DT     = 0.10;  // 5000 × 0.1 = 500 model-time units — enough for slow convergence near bifurcations
-      // Fixed base parameters — not affected by current slider positions
-      const a = 0.10, gamma = 0.80, r = 1.0, d = 0.24;
-
-      // Integrate from a starting condition with a fixed g until equilibrium, return C.
-      function runToEq(C0, M0, g) {
-        let C = C0, M = M0;
-        for (let i = 0; i < TICKS; i++) {
-          const T = Math.max(0, 1 - C - M);
-          const dM = a*M*C - (g*M)/(M + T + 1e-9) + gamma*M*T;
-          const dC = r*T*C - d*C - a*M*C;
-          M = Math.max(0, Math.min(1, M + dM*DT));
-          C = Math.max(0, Math.min(1, C + dC*DT));
-          if (C + M > 1) M = Math.max(0, M - (C + M - 1));
-        }
-        return C;
-      }
-
-      const CORAL_THRESH = 0.4;  // C above this = coral-dominated endpoint
-      const rows = [];
-
-      // g_backward_tip = g_H:
-      //   first g (sweeping down) where algae-start can no longer recover to coral.
-      //   This is the RECOVERY threshold: need g > g_H to escape the algae basin.
-      // g_forward_tip = g_L:
-      //   first g (sweeping down) where coral-start collapses to algae.
-      //   This is the COLLAPSE threshold: below g_L the reef always tips over.
-      // Hysteresis confirmed when g_backward_tip > g_forward_tip (g_H > g_L).
-      let g_backward_tip = null;
-      let g_forward_tip  = null;
-
-      for (let gInt = 90; gInt >= 0; gInt -= 2) {
-        const g = gInt / 100;
-        const C_coral = runToEq(0.70, 0.05, g);  // start: coral-dominated
-        const C_algae = runToEq(0.05, 0.70, g);  // start: algae-dominated
-        const coral_from_coral = C_coral > CORAL_THRESH;
-        const coral_from_algae = C_algae > CORAL_THRESH;
-
-        // Detect g_H: first g (sweeping down) where algae-start no longer recovers
-        if (g_backward_tip === null && !coral_from_algae) g_backward_tip = g;
-        // Detect g_L: first g (sweeping down) where coral-start collapses
-        if (g_forward_tip  === null && !coral_from_coral) g_forward_tip  = g;
-
-        rows.push({
-          g: g.toFixed(2),
-          'C (coral start)': C_coral.toFixed(3) + (coral_from_coral ? ' ✦coral' : ' ·algae'),
-          'C (algae start)': C_algae.toFixed(3) + (coral_from_algae ? ' ✦coral' : ' ·algae'),
-          bistable: (coral_from_coral && !coral_from_algae) ? 'YES ←' : 'no',
-        });
-      }
-
-      console.log('Bistability scan — base params: a=0.10, γ=0.80, r=1.0, d=0.24  |  ' + TICKS + ' ticks × dt=' + DT + ' per g-value');
-      console.table(rows);
-
-      if (g_backward_tip !== null && g_forward_tip !== null) {
-        const delta = (g_backward_tip - g_forward_tip).toFixed(2);
-        const hysteresis = g_backward_tip > g_forward_tip;
-        console.log('');
-        console.log('Forward tip  (collapse threshold):  g_forward  ≈ ' + g_forward_tip.toFixed(2)
-          + '  — below this, coral always collapses');
-        console.log('Backward tip (recovery threshold):  g_backward ≈ ' + g_backward_tip.toFixed(2)
-          + '  — above this, reef always recovers to coral');
-        if (hysteresis) {
-          console.log('✅ Hysteresis confirmed: recovery needs higher grazing than collapse (Δg ≈ ' + delta + ')');
-          console.log('   [g_backward (' + g_backward_tip.toFixed(2) + ') > g_forward (' + g_forward_tip.toFixed(2) + ')]');
-        } else {
-          console.warn('⚠️ g_backward ≤ g_forward — no hysteresis detected. Check parameters.');
-        }
-      } else {
-        if (g_forward_tip  === null) console.warn('⚠️ Coral never collapses — no forward tip found. Increase a/gamma or reduce r/d.');
-        if (g_backward_tip === null) console.warn('⚠️ Algae-start always recovers — no backward tip found. Reduce a/gamma.');
-      }
-    }
-
-    // Expose to browser console so you can run: verifyBistability()
-    window.verifyBistability = verifyBistability;
-
+    const start = (location.hash.toLowerCase()==='#en') ? 'en' : 'de';
+    setLang(start);
+    btns.forEach(b=>b.addEventListener('click',()=>{
+      const l=b.dataset.l;
+      setLang(l);
+      history.replaceState(null,'', l==='en' ? '#en' : location.pathname+location.search);
+    }));
   })();
-  </script>
+
+  // Bildkarussells
+  document.querySelectorAll('.media .track').forEach(track=>{
+    const media=track.closest('.media');
+    const slides=[...track.children];
+    const dots=[...media.querySelectorAll('.c-dots button')];
+    const count=media.querySelector('.c-count b');
+    const n=slides.length; let i=0;
+    function go(k){
+      i=(k+n)%n;
+      track.style.transform='translateX('+(-i*100)+'%)';
+      dots.forEach((d,j)=>d.classList.toggle('on',j===i));
+      if(count) count.textContent=i+1;
+      slides.forEach((s,j)=>s.setAttribute('aria-hidden', j!==i));
+    }
+    const next=media.querySelector('.c-btn.next'), prev=media.querySelector('.c-btn.prev');
+    if(next) next.addEventListener('click',()=>go(i+1));
+    if(prev) prev.addEventListener('click',()=>go(i-1));
+    dots.forEach((d,j)=>d.addEventListener('click',()=>go(j)));
+    media.addEventListener('keydown',e=>{
+      if(e.key==='ArrowRight'){e.preventDefault();go(i+1)}
+      if(e.key==='ArrowLeft'){e.preventDefault();go(i-1)}
+    });
+    let x0=null;
+    media.addEventListener('touchstart',e=>{x0=e.touches[0].clientX},{passive:true});
+    media.addEventListener('touchend',e=>{
+      if(x0===null)return;
+      const dx=e.changedTouches[0].clientX-x0;
+      if(Math.abs(dx)>40) go(dx<0?i+1:i-1);
+      x0=null;
+    });
+    go(0);
+  });
+
+  // Lightbox: Stück-Bilder zum Vergrößern
+  (function(){
+    const lb=document.getElementById('lightbox');
+    if(!lb) return;
+    const lbImg=lb.querySelector('img');
+    const closeBtn=lb.querySelector('.lb-close');
+    function open(src,alt){
+      lbImg.src=src; lbImg.alt=alt||'';
+      lb.classList.add('open');
+      document.documentElement.style.overflow='hidden';
+    }
+    function close(){
+      lb.classList.remove('open');
+      document.documentElement.style.overflow='';
+      setTimeout(()=>{ if(!lb.classList.contains('open')) lbImg.removeAttribute('src'); },300);
+    }
+    document.querySelectorAll('.media:not(.cz-sobh) .slide img').forEach(img=>{
+      img.addEventListener('click',()=>open(img.currentSrc||img.src, img.alt));
+    });
+    document.querySelectorAll('.media:not(.cz-sobh) .track').forEach(track=>{
+      const media=track.closest('.media');
+      if(media.querySelector('.zoom-hint')) return;
+      const hint=document.createElement('span');
+      hint.className='zoom-hint';
+      hint.innerHTML='<svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg>Vergrößern';
+      media.appendChild(hint);
+    });
+    lb.addEventListener('click',e=>{ if(e.target===lb) close(); });
+    lbImg.addEventListener('click',e=>e.stopPropagation());
+    closeBtn.addEventListener('click',close);
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape' && lb.classList.contains('open')) close(); });
+  })();
+</script>
 </body>
 </html>
