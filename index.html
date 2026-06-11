@@ -1040,7 +1040,7 @@
           <div class="sec-chip">🌡️</div>
           <div class="sec-body">
             <h3>Temperature &amp; Coral Bleaching</h3>
-            <p>Corals get their colors from <strong>tiny algae living inside their tissue</strong>. The algae make food by photosynthesis; the coral gives them a home. When water gets too warm, this partnership breaks down: the coral expels its algae and turns ghostly white. That's <strong>bleaching</strong>. Without its partners, the coral slowly starves.</p>
+            <p>Corals get their colors from <strong>tiny algae living inside their tissue</strong> (not the same as the seaweed-like algae that competes with coral for space outside). The algae make food by photosynthesis; the coral gives them a home. When water gets too warm, this partnership breaks down: the coral expels its algae and turns ghostly white. That's <strong>bleaching</strong>. Without its partners, the coral slowly starves.</p>
             <details class="info-more">
               <summary>More on heat &amp; recovery</summary>
               <p>Bleaching isn't always death. If the water cools in time, corals can take their algae back and <strong>regain color within weeks</strong>. But if heat is severe or lasts too long, it kills coral <strong>directly, even when grazers are protected and the water is clean</strong>. And when grazers are gone and nutrients are high, algae overgrows the weakened coral before it can recover, turning a survivable heatwave into a collapse. Repeated heatwaves, now arriving almost yearly, leave less and less time to recover between hits.</p>
@@ -1181,7 +1181,7 @@
       { id:'heat_buffered', test:s=>s.temperature>60&&s.coralHealth>45&&s.fishPopulation>60&&s.algaeCover<20, msg:'Bleaching in the heat, but the fish hold algae back. Cool the water and the reef recovers', emoji:'🌡️', pri:85 },
       { id:'bleach_severe', test:s=>s.temperature>70, msg:'Severe heat; the coral is bleaching and starving', emoji:'🌡️', pri:80 },
       { id:'algae_dominant', test:s=>s.algaeCover>65, msg:'Algae now blankets the reef and blocks the light coral needs', emoji:'🌿', pri:75 },
-      { id:'bleach_mild', test:s=>s.temperature>42&&s.temperature<=70, msg:'The water is warming; the coral is bleaching', emoji:'🌡️', pri:60 },
+      { id:'bleach_mild', test:s=>s.temperature>42&&s.temperature<=70, msg:'The water is warming; the coral is losing its color', emoji:'🌡️', pri:60 },
       { id:'algae_spread', test:s=>s.algaeCover>35&&s.algaeCover<=65, msg:'Algae is spreading, crowding out the coral', emoji:'🌿', pri:55 },
       { id:'fish_decline', test:s=>s.fishing>55&&s.fishPopulation<50, msg:'Overfishing is removing the reef\'s lawnmowers', emoji:'🎣', pri:50 },
       { id:'nutrient_flood', test:s=>s.nutrients>55, msg:'Nutrient runoff is feeding the algae like fertilizer', emoji:'🏭', pri:45 },
